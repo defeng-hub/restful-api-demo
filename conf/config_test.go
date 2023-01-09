@@ -19,3 +19,13 @@ func TestLoadconfigFromEnv(t *testing.T) {
 	conf.LoadConfigFromEnv()
 	fmt.Printf("%#v", conf.C().MySQL.UserName)
 }
+
+func TestGetDB(t *testing.T) {
+	conf.LoadConfigFromToml("../etc/demo.toml")
+	db, err := conf.C().MySQL.GetDB()
+	if err != nil {
+		fmt.Printf("fail:%v", err)
+		return
+	}
+	fmt.Printf("success:%#v", db)
+}

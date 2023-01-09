@@ -5,8 +5,8 @@ port = "8050"
 key  = "this is your app key"
 
 [mysql]
-host = "127.0.0.1"
+host = "159.75.37.58"
 port = "3306"
-username = "go_course"
-password = "xxxx"
-database = "go_course"
+username = "go_gin_api"
+password = "go_gin_api"
+database = "go_gin_api"
