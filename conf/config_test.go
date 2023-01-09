@@ -8,8 +8,8 @@ import (
 )
 
 func TestLoadConfigFromToml(t *testing.T) {
-	conf.LoadConfigFromToml("../etc/demo.toml1")
-	fmt.Printf("%#v", conf.C().App.Name)
+	conf.LoadConfigFromToml("../etc/demo.toml")
+	fmt.Printf("%#v", conf.C().MySQL.Password)
 }
 
 func TestLoadconfigFromEnv(t *testing.T) {

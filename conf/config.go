@@ -23,10 +23,10 @@ func NewDefaultConfig() *Config {
 
 func NewDefaultApp() *App {
 	return &App{
-		Name: "demo",
+		Name: "app",
 		Host: "127.0.0.1",
 		Port: "8099",
-		Key:  "demoKey",
+		Key:  "Key",
 	}
 }
 
