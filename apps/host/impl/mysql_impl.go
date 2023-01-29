@@ -3,7 +3,6 @@ package impl
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"github.com/defeng-hub/restful-api-demo/apps/host"
 	"github.com/defeng-hub/restful-api-demo/conf"
 )
@@ -26,14 +25,21 @@ func NewMysqlServiceImpl() (*MysqlServiceImpl, error) {
 	}, nil
 }
 
-func (s *MysqlServiceImpl) SaveHost(ctx context.Context, h *host.Host) (*host.Host, error) {
-	fmt.Println("saveHost..............")
-	fmt.Printf("#########\n参数1:%#v\n######\n", h)
-	return nil, nil
+func (s *MysqlServiceImpl) SaveHost(ctx context.Context, ins *host.Host) (*host.Host, error) {
+	//校验参数
+	if err := ins.Validate(); err != nil {
+		return nil, err
+	}
+
+	// dao层入库
+	err := s.save(ctx, ins)
+	if err != nil {
+		return nil, err
+	}
+	return ins, nil
 }
 
 func (s *MysqlServiceImpl) QueryHost(ctx context.Context, request *host.QueryHostRequest) (
 	*host.HostSet, error) {
-	fmt.Println("queryHost..............")
 	return nil, nil
 }
