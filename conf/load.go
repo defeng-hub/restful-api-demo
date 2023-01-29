@@ -6,6 +6,7 @@ import (
 	"github.com/caarlos0/env/v6"
 )
 
+// LoadConfigFromToml 通过toml获取配置
 func LoadConfigFromToml(filePath string) error {
 	config = NewDefaultConfig()
 	_, err := toml.DecodeFile(filePath, config)
@@ -20,6 +21,7 @@ func LoadConfigFromToml(filePath string) error {
 	return nil
 }
 
+// LoadConfigFromEnv 通过env获取配置
 func LoadConfigFromEnv() error {
 	config = NewDefaultConfig()
 	err := env.Parse(config)

@@ -63,6 +63,7 @@ type App struct {
 	Port string `toml:"port" env:"APP_PORT"`
 	Key  string `toml:"key" env:"APP_KEY"`
 }
+
 type MySQL struct {
 	Host     string `toml:"host" env:"MYSQL_HOST"`
 	Port     string `toml:"port" env:"MYSQL_PORT"`
