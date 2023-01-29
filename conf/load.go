@@ -8,7 +8,7 @@ import (
 
 // LoadConfigFromToml 通过toml获取配置
 func LoadConfigFromToml(filePath string) error {
-	config = NewDefaultConfig()
+	config = newDefaultConfig()
 	_, err := toml.DecodeFile(filePath, config)
 	if err != nil {
 		return fmt.Errorf("打开配置文件出错:%s", err)
@@ -23,7 +23,7 @@ func LoadConfigFromToml(filePath string) error {
 
 // LoadConfigFromEnv 通过env获取配置
 func LoadConfigFromEnv() error {
-	config = NewDefaultConfig()
+	config = newDefaultConfig()
 	err := env.Parse(config)
 	if err != nil {
 		return fmt.Errorf("获取env环境变量出错:%s", err)
@@ -35,7 +35,7 @@ func LoadConfigFromEnv() error {
 	return nil
 }
 
-// 全局实例
+// 加载全局实例
 func loadGloabl() (err error) {
 	db, err = config.MySQL.getDBConn()
 	if err != nil {

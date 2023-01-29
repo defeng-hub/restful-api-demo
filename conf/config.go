@@ -4,8 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	//mysql 驱动
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql" //mysql 驱动
 	"sync"
 	"time"
 )
@@ -27,14 +26,14 @@ type Config struct {
 	MySQL *MySQL `toml:"mysql"`
 }
 
-func NewDefaultConfig() *Config {
+func newDefaultConfig() *Config {
 	return &Config{
-		App:   NewDefaultApp(),
-		MySQL: NewDefaultMysql(),
+		App:   newDefaultApp(),
+		MySQL: newDefaultMysql(),
 	}
 }
 
-func NewDefaultApp() *App {
+func newDefaultApp() *App {
 	return &App{
 		Name: "app",
 		Host: "127.0.0.1",
@@ -43,7 +42,7 @@ func NewDefaultApp() *App {
 	}
 }
 
-func NewDefaultMysql() *MySQL {
+func newDefaultMysql() *MySQL {
 	return &MySQL{
 		Host:        "127.0.0.1",
 		Port:        "3306",
@@ -51,9 +50,9 @@ func NewDefaultMysql() *MySQL {
 		Password:    "password",
 		Database:    "db1",
 		MaxOpenConn: 50,
-		MaxIdleConn: 30,
-		MaxLifeTime: 3600,
-		MaxIdleTime: 3600 * 2,
+		MaxIdleConn: 20,
+		MaxLifeTime: 1800,
+		MaxIdleTime: 600,
 	}
 }
 
@@ -70,11 +69,14 @@ type MySQL struct {
 	UserName string `toml:"username" env:"MYSQL_USERNAME"`
 	Password string `toml:"password" env:"MYSQL_PASSWORD"`
 	Database string `toml:"database" env:"MYSQL_DATABASE"`
-	// mySQL连接数
+	// mySQL当前程序的连接数
 	MaxOpenConn int `toml:"max_open_conn" env:"MYSQL_MAX_OPEN_CONN"`
-	// 控制MySQL复用
+
+	// 控制MySQL复用, 比如5,最多运行5个来赋予
 	MaxIdleConn int `toml:"max_idle_conn" env:"MYSQL_MAX_IDLE_CONN"`
+	// 一个连接的生命周期, 比如设计1h, 1h后换一个conn,保证可用
 	MaxLifeTime int `toml:"max_life_time" env:"MYSQL_MAX_LIFE_TIME"`
+	// 一个连接最长存活时间
 	MaxIdleTime int `toml:"max_idle_time" env:"MYSQL_MAX_idle_TIME"`
 	lock        sync.Mutex
 }
