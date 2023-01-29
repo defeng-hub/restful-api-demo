@@ -55,6 +55,9 @@ func newDefaultMysql() *MySQL {
 		MaxIdleTime: 600,
 	}
 }
+func (a *App) HttpAddr() string {
+	return fmt.Sprintf("%s:%s", a.Host, a.Port)
+}
 
 type App struct {
 	Name string `toml:"name" env:"APP_NAME"`
