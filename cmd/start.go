@@ -9,17 +9,14 @@ import (
 )
 
 var (
-	// pusher service config option
-	confType string
 	confFile string
-	confETCD string
 )
 
 // StartCmd 程序的启动时, 组装在这里进行
 var StartCmd = &cobra.Command{
 	Use:   "start",
-	Short: "启动 demo-api 管理系统",
-	Long:  `启动 demo-api ...`,
+	Short: "启动服务",
+	Long:  `将启动grpc和http对外进行服务`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		//加载配置
 		if err := conf.LoadConfigFromToml(confFile); err != nil {
