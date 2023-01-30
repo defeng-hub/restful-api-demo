@@ -28,6 +28,7 @@ func (h *Handler) Config() {
 	if h.svc == nil {
 		panic("在IOC中 没有获取到HostService")
 	}
+
 }
 
 func (h *Handler) Name() string {
