@@ -62,6 +62,5 @@ func init() {
 	// 现在采用自动注册,类似于mysql引擎   import _ "xxx"
 	// sql这个库就是案例
 	//apps.HostService = impl // 注册到ioc层
-
 	apps.Registry(impl)
 }
