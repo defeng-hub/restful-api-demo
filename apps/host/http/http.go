@@ -11,7 +11,6 @@ type Handler struct {
 }
 
 // NewHttpHandler 面向接口, 真正service的实现, 在服务实例化的时候传进来
-
 func NewHttpHandler(svc host.Service) *Handler {
 	return &Handler{
 		svc: svc,
