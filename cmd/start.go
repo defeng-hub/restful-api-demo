@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/defeng-hub/restful-api-demo/apps"
 	"github.com/defeng-hub/restful-api-demo/apps/host/http"
 	"github.com/defeng-hub/restful-api-demo/apps/host/impl"
 	"github.com/defeng-hub/restful-api-demo/conf"
@@ -22,9 +23,11 @@ var StartCmd = &cobra.Command{
 		if err := conf.LoadConfigFromToml(confFile); err != nil {
 			return err
 		}
-		service, _ := impl.NewMysqlServiceImpl()
+		apps.HostService, _ = impl.NewMysqlServiceImpl()
 
-		api := http.NewHttpHandler(service)
+		api := http.NewHttpHandler()
+		// 从ioc中获取依赖, 拿到了apps.HostService
+		api.Config()
 
 		g := gin.Default()
 		api.Registry(g)
