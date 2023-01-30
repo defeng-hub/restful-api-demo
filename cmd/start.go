@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/defeng-hub/restful-api-demo/apps"
-	"github.com/defeng-hub/restful-api-demo/apps/host/http"
 	"github.com/defeng-hub/restful-api-demo/conf"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
@@ -26,15 +25,12 @@ var StartCmd = &cobra.Command{
 			return err
 		}
 
-		//对所有app进行初始化
-		apps.AppsInit()
+		//对所有app-impl进行初始化
+		apps.InitImpl()
 
-		api := http.NewHttpHandler()
-		// 从ioc中获取依赖, 拿到了apps.HostService
-		api.Config()
-
+		//完成暴露http服务的初始化
 		g := gin.Default()
-		api.Registry(g)
+		apps.InitGin(g)
 
 		return g.Run(conf.C().App.HttpAddr())
 	},
