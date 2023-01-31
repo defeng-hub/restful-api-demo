@@ -1,7 +1,6 @@
 package host
 
 import (
-	"context"
 	"github.com/go-playground/validator/v10"
 	"time"
 )
@@ -19,25 +18,39 @@ const (
 	HuaWei
 )
 
-// Service 抽象服务
-type Service interface {
-	SaveHost(context.Context, *Host) (*Host, error)
-	QueryHost(context.Context, *QueryHostRequest) (*HostSet, error)
-}
-
 type QueryHostRequest struct {
 	PageSize   uint64 `json:"page_size,omitempty"`
 	PageNumber uint64 `json:"page_number,omitempty"`
+	Keywords   string `json:"kws"`
+}
+
+func NewQueryHostRequest(pageSize uint64, pageNumber uint64, keywords string) *QueryHostRequest {
+	return &QueryHostRequest{PageSize: pageSize, PageNumber: pageNumber, Keywords: keywords}
+}
+
+func (q *QueryHostRequest) OffSet() int64 {
+	return int64((q.PageNumber - 1) * q.PageSize)
 }
 
 type HostSet struct {
-	Items []*Host `json:"items"`
 	Total int     `json:"total"`
+	Items []*Host `json:"items"`
+}
+
+func NewHostSet() *HostSet {
+	return &HostSet{}
 }
 
 type Host struct {
 	*Resource
 	*Describe
+}
+
+func NewHost() *Host {
+	return &Host{
+		&Resource{},
+		&Describe{},
+	}
 }
 
 // Validate  Host 校验

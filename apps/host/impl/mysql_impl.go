@@ -8,6 +8,7 @@ import (
 	"github.com/defeng-hub/restful-api-demo/conf"
 	"github.com/infraboard/mcube/logger"
 	"github.com/infraboard/mcube/logger/zap"
+	"github.com/infraboard/mcube/sqlbuilder"
 )
 
 //编译器做静态检查
@@ -29,6 +30,7 @@ func NewMysqlServiceImpl() (*MysqlServiceImpl, error) {
 	}
 	return &MysqlServiceImpl{
 		DB: db,
+		l:  zap.L().Named("Host Impl"),
 	}, nil
 }
 
@@ -48,18 +50,58 @@ func (s *MysqlServiceImpl) SaveHost(ctx context.Context, ins *host.Host) (*host.
 	return ins, nil
 }
 
-func (s *MysqlServiceImpl) QueryHost(ctx context.Context, request *host.QueryHostRequest) (
+func (s *MysqlServiceImpl) QueryHost(ctx context.Context, req *host.QueryHostRequest) (
 	*host.HostSet, error) {
+	b := sqlbuilder.NewBuilder(queryHostSQL)
+	if req.Keywords != "" {
+		b.Where("r.`name`=? or r.`description`=?",
+			"%"+req.Keywords+"%",
+			"%"+req.Keywords+"%",
+		)
+	}
+	b.Limit(req.OffSet(), uint(req.PageSize))
+	querySQL, args := b.Build()
+	//s.l.Infof("querysql:%s, args:%v", querySQL, args)
+
+	stmt, err := s.DB.PrepareContext(ctx, querySQL)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.QueryContext(ctx, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	// id     | vendor | region      | create_at     | expire_at | type | name       |
+	// description | status | update_at     | sync_at | account | public_ip |
+	// private_ip | resource_id | cpu | memory | gpu_amount | gpu_spec | os_type | os_name | serial_number |
+	set := host.NewHostSet()
+	for rows.Next() {
+		ins := host.NewHost()
+		if err := rows.Scan(&ins.Id, &ins.Vendor, &ins.Region, &ins.CreateAt, &ins.ExpireAt, &ins.Type, &ins.Name,
+			&ins.Description, &ins.Status, &ins.UpdateAt, &ins.SyncAt, &ins.Account, &ins.PublicIP, &ins.PrivateIP, &ins.Id,
+			&ins.CPU, &ins.Memory, &ins.GPUAmount, &ins.GPUSpec, &ins.OSName, &ins.SerialNumber, &ins.SerialNumber); err != nil {
+			return nil, err
+		}
+		set.Items = append(set.Items, ins)
+	}
+	for i := range set.Items {
+		s.l.Infof("set:%v", set.Items[i].Name)
+
+	}
+
 	return nil, nil
 }
 
 // Config Name #####通过实现了下边两个方法就可以注册到ioc层了#####
-func (i *MysqlServiceImpl) Config() {
+func (s *MysqlServiceImpl) Config() {
 	// 只需要保证config() 执行完成就能实现初始化
-	i.DB, _ = conf.C().MySQL.GetDB()
-	i.l = zap.L().Named("Host")
+	s.DB, _ = conf.C().MySQL.GetDB()
+	s.l = zap.L().Named("Host")
 }
-func (i *MysqlServiceImpl) Name() string {
+func (s *MysqlServiceImpl) Name() string {
 	return host.AppName
 }
 

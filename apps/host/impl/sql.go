@@ -14,5 +14,8 @@ const (
         os_type,os_name,serial_number
 	) VALUES (?,?,?,?,?,?,?,?);`
 
-	queryHostSQL = `SELECT * FROM host_resource as r LEFT JOIN host_describe h ON r.id=h.resource_id`
+	//	`SELECT * FROM host_resource as r LEFT JOIN host_describe h ON r.id=h.resource_id`
+	queryHostSQL = `
+	select * from host_resource as r 
+	left join host_describe as d on r.id = d.resource_id`
 )

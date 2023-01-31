@@ -16,6 +16,7 @@ var (
 
 func init() {
 	conf.LoadConfigFromToml("../../../etc/pro.toml")
+	conf.LoadGlobalLogger()
 	service, _ = impl.NewMysqlServiceImpl()
 }
 
@@ -55,4 +56,12 @@ func TestCreateHost(t *testing.T) {
 		return
 	}
 	fmt.Println("pong.....")
+}
+
+func TestQueryHost(t *testing.T) {
+	_, err := service.QueryHost(context.Background(), host.NewQueryHostRequest(20, 1, ""))
+
+	if err != nil {
+		return
+	}
 }

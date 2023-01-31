@@ -4,5 +4,6 @@ PKG := "github.com/defeng-hub/$(PROJECT_NAME)"
 
 .PHONY: all dep lint vet test test-coverage build clean
 
-run: # Run Develop server
+run:
 	@go run $(MAIN_FILE) start -f etc/pro.toml
+
