@@ -25,6 +25,10 @@ var StartCmd = &cobra.Command{
 			return err
 		}
 
+		if err := conf.LoadGlobalLogger(); err != nil {
+			return err
+		}
+
 		//对所有app-impl进行初始化
 		apps.InitImpl()
 

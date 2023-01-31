@@ -11,4 +11,14 @@ username = "go_course"
 password = "xxxx"
 database = "go_course"
 
-
+[log]
+#	DebugLevel: "debug",
+#	InfoLevel:  "info",
+#	WarnLevel:  "warning",
+#	ErrorLevel: "error",
+#	FatalLevel: "fatal",
+#	PanicLevel: "panic",
+level = "info"
+out_dir = "logs"
+format = "text"
+to = "file"

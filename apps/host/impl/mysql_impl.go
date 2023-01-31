@@ -6,6 +6,8 @@ import (
 	"github.com/defeng-hub/restful-api-demo/apps"
 	"github.com/defeng-hub/restful-api-demo/apps/host"
 	"github.com/defeng-hub/restful-api-demo/conf"
+	"github.com/infraboard/mcube/logger"
+	"github.com/infraboard/mcube/logger/zap"
 )
 
 //编译器做静态检查
@@ -16,6 +18,7 @@ var impl = &MysqlServiceImpl{}
 
 type MysqlServiceImpl struct {
 	DB *sql.DB
+	l  logger.Logger
 }
 
 // NewMysqlServiceImpl 创建mysql实现类的实例, 只给测试用例使用了
@@ -34,6 +37,8 @@ func (s *MysqlServiceImpl) SaveHost(ctx context.Context, ins *host.Host) (*host.
 	if err := ins.Validate(); err != nil {
 		return nil, err
 	}
+	s.l.Named("Create").Debug("create host")
+	s.l.Infof("参数校验,%s", "通过")
 
 	// dao层入库
 	err := s.save(ctx, ins)
@@ -52,6 +57,7 @@ func (s *MysqlServiceImpl) QueryHost(ctx context.Context, request *host.QueryHos
 func (i *MysqlServiceImpl) Config() {
 	// 只需要保证config() 执行完成就能实现初始化
 	i.DB, _ = conf.C().MySQL.GetDB()
+	i.l = zap.L().Named("Host")
 }
 func (i *MysqlServiceImpl) Name() string {
 	return host.AppName

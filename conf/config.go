@@ -24,12 +24,30 @@ func C() *Config {
 type Config struct {
 	App   *App   `toml:"app"`
 	MySQL *MySQL `toml:"mysql"`
+	Log   *log   `toml:"log"`
+}
+type log struct {
+	Level  string    `toml:"level" env:"LOG_LEVEL"`
+	OutDir string    `toml:"out_dir" env:"LOG_PATH_DIR"`
+	Format LogFormat `toml:"format" env:"LOG_FORMAT"`
+	To     LogTo     `toml:"to" env:"LOG_TO"`
+}
+type App struct {
+	Name string `toml:"name" env:"APP_NAME"`
+	Host string `toml:"host" env:"APP_HOST"`
+	Port string `toml:"port" env:"APP_PORT"`
+	Key  string `toml:"key" env:"APP_KEY"`
+}
+
+func (a *App) HttpAddr() string {
+	return fmt.Sprintf("%s:%s", a.Host, a.Port)
 }
 
 func newDefaultConfig() *Config {
 	return &Config{
 		App:   newDefaultApp(),
 		MySQL: newDefaultMysql(),
+		Log:   newDefaultLog(),
 	}
 }
 
@@ -55,15 +73,14 @@ func newDefaultMysql() *MySQL {
 		MaxIdleTime: 600,
 	}
 }
-func (a *App) HttpAddr() string {
-	return fmt.Sprintf("%s:%s", a.Host, a.Port)
-}
 
-type App struct {
-	Name string `toml:"name" env:"APP_NAME"`
-	Host string `toml:"host" env:"APP_HOST"`
-	Port string `toml:"port" env:"APP_PORT"`
-	Key  string `toml:"key" env:"APP_KEY"`
+// newDefaultLog todo
+func newDefaultLog() *log {
+	return &log{
+		Level:  "debug",
+		Format: "text",
+		To:     "stdout",
+	}
 }
 
 type MySQL struct {

@@ -18,3 +18,4 @@
 .idea
 .vscode
 /etc/pro.toml
+logs/*
