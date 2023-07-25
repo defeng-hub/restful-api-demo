@@ -28,7 +28,6 @@ func TestLoadconfigFromEnv(t *testing.T) {
 
 func TestGetDB(t *testing.T) {
 	conf.LoadConfigFromToml("../etc/pro.toml")
-
 	db, err := conf.C().MySQL.GetDB()
 	if err != nil {
 		fmt.Printf("fail:%v", err)
