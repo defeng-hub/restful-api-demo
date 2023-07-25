@@ -35,7 +35,7 @@ func LoadConfigFromEnv() error {
 	return nil
 }
 
-// 加载全局实例
+// 加载全局实例, 给上边两个用
 func loadGloabl() (err error) {
 	db, err = config.MySQL.getDBConn()
 	if err != nil {

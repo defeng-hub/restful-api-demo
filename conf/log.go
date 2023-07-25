@@ -60,11 +60,18 @@ func LoadGlobalLogger() error {
 		//输出到文件
 		zapConfig.Files.Name = "api.log"
 		zapConfig.Files.Path = lc.OutDir
+	default:
+		zapConfig.ToStderr = true // 输出到控制台
+		zapConfig.ToFiles = false // 不输出到文件
 	}
 	// 配置日志输出格式
 	switch lc.Format {
+	case TextFormat:
+		break
 	case JSONFormat:
 		zapConfig.JSON = true
+	default: //默认就是 TextFormat 'text'
+		break
 	}
 	// 把配置应用到全局
 	if err := zap.Configure(zapConfig); err != nil {

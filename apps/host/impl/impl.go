@@ -18,7 +18,7 @@ var _ host.Service = (*MysqlServiceImpl)(nil)
 var impl = &MysqlServiceImpl{}
 
 type MysqlServiceImpl struct {
-	DB *sql.DB
+	db *sql.DB
 	l  logger.Logger
 }
 
@@ -29,12 +29,28 @@ func NewMysqlServiceImpl() (*MysqlServiceImpl, error) {
 		return nil, err
 	}
 	return &MysqlServiceImpl{
-		DB: db,
+		db: db,
 		l:  zap.L().Named("Host Impl"),
 	}, nil
 }
 
+func (s *MysqlServiceImpl) DescribeHost(ctx context.Context, request *host.QueryHostRequest) (*host.Host, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *MysqlServiceImpl) UpdateHost(ctx context.Context, request *host.UpdateHostRequest) (*host.Host, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *MysqlServiceImpl) DeleteHost(ctx context.Context, request *host.DeleteHostRequest) (*host.Host, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (s *MysqlServiceImpl) SaveHost(ctx context.Context, ins *host.Host) (*host.Host, error) {
+	s.l.Error("aaaerror")
 	//校验参数
 	if err := ins.Validate(); err != nil {
 		return nil, err
@@ -63,7 +79,7 @@ func (s *MysqlServiceImpl) QueryHost(ctx context.Context, req *host.QueryHostReq
 	querySQL, args := b.Build()
 	//s.l.Infof("querysql:%s, args:%v", querySQL, args)
 
-	stmt, err := s.DB.PrepareContext(ctx, querySQL)
+	stmt, err := s.db.PrepareContext(ctx, querySQL)
 	if err != nil {
 		return nil, err
 	}
@@ -91,14 +107,13 @@ func (s *MysqlServiceImpl) QueryHost(ctx context.Context, req *host.QueryHostReq
 		s.l.Infof("set:%v", set.Items[i].Name)
 
 	}
-
 	return nil, nil
 }
 
 // Config Name #####通过实现了下边两个方法就可以注册到ioc层了#####
 func (s *MysqlServiceImpl) Config() {
 	// 只需要保证config() 执行完成就能实现初始化
-	s.DB, _ = conf.C().MySQL.GetDB()
+	s.db, _ = conf.C().MySQL.GetDB()
 	s.l = zap.L().Named("Host")
 }
 func (s *MysqlServiceImpl) Name() string {

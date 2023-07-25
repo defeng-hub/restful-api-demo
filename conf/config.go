@@ -39,50 +39,6 @@ type App struct {
 	Key  string `toml:"key" env:"APP_KEY"`
 }
 
-func (a *App) HttpAddr() string {
-	return fmt.Sprintf("%s:%s", a.Host, a.Port)
-}
-
-func newDefaultConfig() *Config {
-	return &Config{
-		App:   newDefaultApp(),
-		MySQL: newDefaultMysql(),
-		Log:   newDefaultLog(),
-	}
-}
-
-func newDefaultApp() *App {
-	return &App{
-		Name: "app",
-		Host: "127.0.0.1",
-		Port: "8099",
-		Key:  "Key",
-	}
-}
-
-func newDefaultMysql() *MySQL {
-	return &MySQL{
-		Host:        "127.0.0.1",
-		Port:        "3306",
-		UserName:    "test",
-		Password:    "password",
-		Database:    "db1",
-		MaxOpenConn: 50,
-		MaxIdleConn: 20,
-		MaxLifeTime: 1800,
-		MaxIdleTime: 600,
-	}
-}
-
-// newDefaultLog todo
-func newDefaultLog() *log {
-	return &log{
-		Level:  "debug",
-		Format: "text",
-		To:     "stdout",
-	}
-}
-
 type MySQL struct {
 	Host     string `toml:"host" env:"MYSQL_HOST"`
 	Port     string `toml:"port" env:"MYSQL_PORT"`
@@ -116,7 +72,7 @@ func (m *MySQL) GetDB() (*sql.DB, error) {
 	return db, nil
 }
 
-// getDBConn 获取数据库连接池
+// getDBConn 获取数据库连接池， 对内
 func (m *MySQL) getDBConn() (*sql.DB, error) {
 	var err error
 	//multiStatements=true 运行执行多行sql

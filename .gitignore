@@ -19,3 +19,4 @@
 .vscode
 /etc/pro.toml
 logs/*
+/etc/*.env

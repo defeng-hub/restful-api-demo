@@ -12,6 +12,7 @@ var (
 )
 
 const (
+	// 枚举默认值0
 	PrivateIDC Vendor = iota
 	Tencent
 	AliYun
@@ -23,46 +24,18 @@ type QueryHostRequest struct {
 	PageNumber uint64 `json:"page_number,omitempty"`
 	Keywords   string `json:"kws"`
 }
-
-func NewQueryHostRequest(pageSize uint64, pageNumber uint64, keywords string) *QueryHostRequest {
-	return &QueryHostRequest{PageSize: pageSize, PageNumber: pageNumber, Keywords: keywords}
+type UpdateHostRequest struct {
+	*Describe
 }
-
-func (q *QueryHostRequest) OffSet() int64 {
-	return int64((q.PageNumber - 1) * q.PageSize)
-}
-
-type HostSet struct {
-	Total int     `json:"total"`
-	Items []*Host `json:"items"`
-}
-
-func NewHostSet() *HostSet {
-	return &HostSet{}
+type DeleteHostRequest struct {
+	ID string
 }
 
 type Host struct {
+	//资源公共属性部分
 	*Resource
+	//资源独有属性
 	*Describe
-}
-
-func NewHost() *Host {
-	return &Host{
-		&Resource{},
-		&Describe{},
-	}
-}
-
-// Validate  Host 校验
-func (h *Host) Validate() error {
-	return validate.Struct(h)
-}
-
-// InjectDefault 注入default 默认值
-func (h *Host) InjectDefault() {
-	if h.CreateAt == 0 {
-		h.CreateAt = time.Now().UnixMilli()
-	}
 }
 
 type Resource struct {
@@ -89,5 +62,41 @@ type Describe struct {
 	GPUSpec      string `json:"gpu_spec"`                   // GPU类型
 	OSType       string `json:"os_type"`                    // 操作系统类型，分为Windows和Linux
 	OSName       string `json:"os_name"`                    // 操作系统名称
-	SerialNumber string `json:"serial_number"`              // 序列号
+	SerialNumber string `json:"serial_number"`              // 主板序列号
+}
+
+func NewQueryHostRequest(pageSize uint64, pageNumber uint64, keywords string) *QueryHostRequest {
+	return &QueryHostRequest{PageSize: pageSize, PageNumber: pageNumber, Keywords: keywords}
+}
+
+func (q *QueryHostRequest) OffSet() int64 {
+	return int64((q.PageNumber - 1) * q.PageSize)
+}
+
+type HostSet struct {
+	Total int     `json:"total"`
+	Items []*Host `json:"items"`
+}
+
+func NewHostSet() *HostSet {
+	return &HostSet{}
+}
+
+func NewHost() *Host {
+	return &Host{
+		&Resource{},
+		&Describe{},
+	}
+}
+
+// Validate  Host 校验
+func (h *Host) Validate() error {
+	return validate.Struct(h)
+}
+
+// InjectDefault 注入default 默认值
+func (h *Host) InjectDefault() {
+	if h.CreateAt == 0 {
+		h.CreateAt = time.Now().UnixMilli()
+	}
 }

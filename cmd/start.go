@@ -84,6 +84,6 @@ type manager struct {
 
 func init() {
 	StartCmd.PersistentFlags().StringVarP(&confFile, "config", "f",
-		"letc/pro.tom", "配置文件路径")
+		"etc/pro.toml", "配置文件路径")
 	RootCmd.AddCommand(StartCmd)
 }

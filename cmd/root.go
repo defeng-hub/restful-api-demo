@@ -12,9 +12,9 @@ var (
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
-	Use:   "demo",
-	Short: "demo短描述",
-	Long:  `这是demo的长描述,可以很长.....`,
+	Use:   "main.exe",
+	Short: "主文件",
+	Long:  `这个程序是王丰的练习程序...`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if vers {
 			fmt.Println(version.FullVersion())
