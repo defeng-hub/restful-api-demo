@@ -58,10 +58,11 @@ type MySQL struct {
 }
 
 func (m *MySQL) GetDB() (*sql.DB, error) {
-	// 直接锁住临界区,
-	m.lock.Lock()
+	// 1.第一种方式，使用LoadGlobal去加载 [伪代码 db = getDBConn()]， 在程序启动时，初始化全局db实例
+	// 2.第二种方式，惰性加载
+	m.lock.Lock() // 直接锁住临界区,
 	defer m.lock.Unlock()
-	// 加载全局数据库单例
+	// 加载全局数据库单例,以下内容加了锁，只能保证同时只有一个进来
 	if db == nil {
 		conn, err := m.getDBConn()
 		if err != nil {
@@ -72,7 +73,7 @@ func (m *MySQL) GetDB() (*sql.DB, error) {
 	return db, nil
 }
 
-// getDBConn 获取数据库连接池， 对内
+// 获取数据库连接池  对内!!
 func (m *MySQL) getDBConn() (*sql.DB, error) {
 	var err error
 	//multiStatements=true 运行执行多行sql

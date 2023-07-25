@@ -14,7 +14,7 @@ func LoadConfigFromToml(filePath string) error {
 		return fmt.Errorf("打开配置文件出错:%s", err)
 	}
 
-	err2 := loadGloabl()
+	err2 := loadGlobal()
 	if err2 != nil {
 		return fmt.Errorf("连接数据库失败:%s", err)
 	}
@@ -28,7 +28,7 @@ func LoadConfigFromEnv() error {
 	if err != nil {
 		return fmt.Errorf("获取env环境变量出错:%s", err)
 	}
-	err2 := loadGloabl()
+	err2 := loadGlobal()
 	if err2 != nil {
 		return fmt.Errorf("连接数据库失败:%s", err)
 	}
@@ -36,10 +36,7 @@ func LoadConfigFromEnv() error {
 }
 
 // 加载全局实例, 给上边两个用
-func loadGloabl() (err error) {
-	db, err = config.MySQL.getDBConn()
-	if err != nil {
-		return
-	}
+func loadGlobal() (err error) {
+	db, err = config.MySQL.GetDB()
 	return
 }
