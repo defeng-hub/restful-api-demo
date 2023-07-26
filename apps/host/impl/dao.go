@@ -19,6 +19,7 @@ func (s *MysqlServiceImpl) save(ctx context.Context, ins *host.Host) error {
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
+		s.l.Errorf("start tx error, %s", err)
 		return fmt.Errorf("开启事务异常")
 	}
 

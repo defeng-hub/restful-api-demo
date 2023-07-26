@@ -44,6 +44,7 @@ func RegistryImpl(obj ImplService) {
 	}
 }
 
+// RegistryGin 注册到GinApps
 func RegistryGin(obj GinService) {
 	if _, ok := ginApps[obj.Name()]; ok {
 		panic(fmt.Sprintf("服务:%s 已经注册", obj.Name()))
@@ -52,6 +53,7 @@ func RegistryGin(obj GinService) {
 	ginApps[obj.Name()] = obj
 }
 
+// InitImpl 初始化全部Impl
 func InitImpl() {
 	for _, svc := range implApps {
 		svc.Config()

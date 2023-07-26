@@ -8,6 +8,7 @@ import (
 type Vendor int
 
 var (
+	// validate 必须先new一个实例，然后在实例上使用 v.Struct( obj )，  obj 就是 某个结构体的实例
 	validate = validator.New()
 )
 

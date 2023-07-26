@@ -42,6 +42,7 @@ var StartCmd = &cobra.Command{
 		//apps.InitGin(g)
 		//g.Run(conf.C().App.HttpAddr())
 		manage := newManage()
+
 		//启动http服务
 		if err = manage.http.Start(); err != nil {
 			manage.l.Errorf("http服务启动失败%s", err)

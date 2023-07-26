@@ -50,7 +50,6 @@ func (s *MysqlServiceImpl) DeleteHost(ctx context.Context, request *host.DeleteH
 }
 
 func (s *MysqlServiceImpl) SaveHost(ctx context.Context, ins *host.Host) (*host.Host, error) {
-	s.l.Error("aaaerror")
 	//校验参数
 	if err := ins.Validate(); err != nil {
 		return nil, err
