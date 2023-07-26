@@ -1,30 +1,30 @@
 package http
 
 import (
-	"github.com/defeng-hub/restful-api-demo/apps"
 	"github.com/defeng-hub/restful-api-demo/apps/host"
 	"github.com/gin-gonic/gin"
+	"github.com/infraboard/mcube/http/response"
 )
 
-var handler = &Handler{}
-
-// Registry http handler注册
-func (h *Handler) Registry(r gin.IRouter) {
-	r.GET("/"+host.AppName+"/hosts", h.createHost)
-	r.POST("/"+host.AppName+"/hosts", h.createHost)
-}
-
-func (h *Handler) Config() {
-	h.svc = apps.GetImpl(host.AppName).(host.Service)
-	if h.svc == nil {
-		panic("在IOC中 没有获取到HostService")
+//创建host的http-api
+func (h *Handler) createHost(c *gin.Context) {
+	//获取用户传递的参数,并解析
+	ins := host.NewHost()
+	if err := c.Bind(ins); err != nil {
+		response.Failed(c.Writer, err)
+		return
 	}
-}
+	//校验参数
+	err := ins.Validate()
+	if err != nil {
+		response.Failed(c.Writer, err)
+		return
+	}
 
-func (h *Handler) Name() string {
-	return host.AppName
-}
-
-func init() {
-	apps.RegistryGin(handler)
+	resIns, err := h.svc.SaveHost(c.Request.Context(), ins)
+	if err != nil {
+		response.Failed(c.Writer, err)
+		return
+	}
+	response.Success(c.Writer, resIns)
 }
