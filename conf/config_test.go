@@ -3,6 +3,7 @@ package conf_test
 import (
 	"github.com/defeng-hub/restful-api-demo/conf"
 	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 )
 
@@ -16,7 +17,7 @@ func TestLoadConfigFromToml(t *testing.T) {
 
 func TestLoadconfigFromEnv(t *testing.T) {
 	// 先设置 环境变量
-	//oss.Setenv("MYSQL_USERNAME", "mcube-demo")
+	os.Setenv("MYSQL_USERNAME", "mcube-demo")
 	should := assert.New(t)
 	err := conf.LoadConfigFromEnv()
 	if should.NoError(err) {

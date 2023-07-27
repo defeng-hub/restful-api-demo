@@ -3,11 +3,13 @@ package impl
 import (
 	"context"
 	"database/sql"
+
 	"github.com/defeng-hub/restful-api-demo/apps/host"
 	"github.com/defeng-hub/restful-api-demo/conf"
+	"github.com/defeng-hub/restful-api-demo/utils/sqlbuilder"
+
 	"github.com/infraboard/mcube/logger"
 	"github.com/infraboard/mcube/logger/zap"
-	"github.com/infraboard/mcube/sqlbuilder"
 )
 
 type MysqlServiceImpl struct {
@@ -100,7 +102,6 @@ func (s *MysqlServiceImpl) QueryHost(ctx context.Context, req *host.QueryHostReq
 	}
 	for i := range set.Items {
 		s.l.Infof("set:%v", set.Items[i].Name)
-
 	}
-	return nil, nil
+	return set, nil
 }

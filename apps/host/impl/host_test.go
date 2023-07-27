@@ -2,6 +2,7 @@ package impl_test
 
 import (
 	"context"
+	"fmt"
 	"github.com/defeng-hub/restful-api-demo/apps/host"
 	"github.com/defeng-hub/restful-api-demo/apps/host/impl"
 	"github.com/defeng-hub/restful-api-demo/conf"
@@ -24,7 +25,7 @@ func TestCreateHost(t *testing.T) {
 	should := assert.New(t)
 	host1 := host.NewHost()
 
-	host1.Id = "111"
+	host1.Id = "444"
 	host1.Region = "6"
 	host1.Type = "6"
 	host1.Name = "家用服务器"
@@ -39,8 +40,10 @@ func TestCreateHost(t *testing.T) {
 }
 
 func TestQueryHost(t *testing.T) {
-	_, err := service.QueryHost(context.Background(), host.NewQueryHostRequest(20, 1, ""))
-	if err != nil {
-		return
-	}
+	should := assert.New(t)
+
+	hostset, err := service.QueryHost(context.Background(), host.NewQueryHostRequest(6, 1, ""))
+	should.NoError(err)
+	should.NotNil(hostset)
+	fmt.Println(hostset)
 }
