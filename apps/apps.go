@@ -68,3 +68,10 @@ func GetImpl(name string) interface{} {
 	}
 	return nil
 }
+
+func LoadedGinApps() (names []string) {
+	for k, _ := range ginApps {
+		names = append(names, k)
+	}
+	return
+}

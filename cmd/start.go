@@ -37,10 +37,11 @@ var StartCmd = &cobra.Command{
 		//对所有app-impl进行初始化
 		apps.InitImpl()
 
-		//完成暴露http服务的初始化
-		//g := gin.Default()
-		//apps.InitGin(g)
-		//g.Run(conf.C().App.HttpAddr())
+		// 如果没close gc是不会回收的
+		ch := make(chan os.Signal, 1)
+		defer close(ch)
+		signal.Notify(ch, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGHUP, syscall.SIGINT)
+
 		manage := newManage()
 
 		//启动http服务
@@ -48,12 +49,6 @@ var StartCmd = &cobra.Command{
 			manage.l.Errorf("http服务启动失败%s", err)
 			return err
 		}
-
-		ch := make(chan os.Signal, 1)
-		// channel是一种复合数据结构, 可以当初一个容器, 自定义的struct make(chan int, 1000), 8bytes * 1024  1Kb
-		// 如果没close gc是不会回收的
-		defer close(ch)
-		signal.Notify(ch, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGHUP, syscall.SIGINT)
 		go manage.WaitStop(ch)
 		return err
 	},
@@ -66,7 +61,7 @@ func newManage() *manager {
 	}
 }
 
-// 处理来自外部的中断信号, 比如Terminal
+// WaitStop 处理来自外部的中断信号, 比如Terminal
 func (m *manager) WaitStop(ch <-chan os.Signal) {
 	for v := range ch {
 		switch v {
@@ -77,7 +72,10 @@ func (m *manager) WaitStop(ch <-chan os.Signal) {
 	}
 }
 
-// 管理http
+// 用来解决的问题：
+// start 不能写很长，但是项目启动有很多服务，例如
+// 例如 http grpc 消息总线 注册中心，这些模块都是独立的，
+// 都需要在程序启动时进行，都写在start不易维护
 type manager struct {
 	http *protocol.HTTPService
 	l    logger.Logger

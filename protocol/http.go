@@ -2,7 +2,6 @@ package protocol
 
 import (
 	"context"
-	"fmt"
 	"github.com/defeng-hub/restful-api-demo/apps"
 	"github.com/defeng-hub/restful-api-demo/conf"
 	"github.com/gin-gonic/gin"
@@ -13,9 +12,9 @@ import (
 )
 
 type HTTPService struct {
+	server *http.Server
 	l      logger.Logger
 	c      *conf.Config
-	server *http.Server
 	r      *gin.Engine
 }
 
@@ -45,14 +44,16 @@ func (s *HTTPService) Start() error {
 	// 装置子服务路由, 注册给gin
 	apps.InitGin(s.r)
 
-	// 启动 HTTP服务
+	s.l.Infof("成功加载的gin apps: %s", apps.LoadedGinApps())
 	s.l.Infof("HTTP服务启动成功, 监听地址: %s", s.server.Addr)
+	// 启动 HTTP服务
 	if err := s.server.ListenAndServe(); err != nil {
-		//如果时 正常监听到关闭信号
-		if err == http.ErrServerClosed {
+
+		if err == http.ErrServerClosed { //如果是 正常监听到关闭信号
 			s.l.Info("service is stopped")
 		}
-		return fmt.Errorf("start service error, %s", err.Error())
+		s.l.Errorf("start service error, %v", err.Error())
+		return err
 	}
 	return nil
 }
