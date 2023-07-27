@@ -30,4 +30,6 @@ func init() {
 
 	// 第一种永久选项 global flag
 	RootCmd.PersistentFlags().BoolVarP(&vers, "version", "v", false, "输出版本信息")
+	RootCmd.AddCommand(StartCmd)
+
 }

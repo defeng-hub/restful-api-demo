@@ -52,8 +52,9 @@ func (s *HTTPService) Start() error {
 			s.l.Info("HTTP Service is stopped")
 		} else {
 			s.l.Errorf("start service error, %v", err.Error())
+			return err
 		}
-		return err
+		return nil
 	}
 	return nil
 }
