@@ -2,18 +2,11 @@ package apps
 
 import (
 	"fmt"
-	"github.com/defeng-hub/restful-api-demo/apps/host"
 	"github.com/gin-gonic/gin"
 )
 
 //IOC容器层: 管理所有的服务实例
-
-// 1.HostService 的实例必须注册过来,注册完了才会有具体的实例
-// 2.Http
-
 var (
-	HostService host.Service
-
 	implApps = map[string]ImplService{}
 	ginApps  = map[string]GinService{}
 )
@@ -38,10 +31,6 @@ func RegistryImpl(obj ImplService) {
 	// 服务实例注册到svcs map
 	implApps[obj.Name()] = obj
 
-	// 注册具体的服务
-	if v, ok := obj.(host.Service); ok {
-		HostService = v
-	}
 }
 
 // RegistryGin 注册到GinApps

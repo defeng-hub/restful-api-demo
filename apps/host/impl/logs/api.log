@@ -1,3 +1,0 @@
-2023-07-25 13:58:32	INFO	[INIT]	conf/log.go:75	log level: info
-2023-07-25 13:58:32	ERROR	[Host Impl]	impl/impl.go:53	aaaerror
-2023-07-25 13:58:32	INFO	[Host Impl]	impl/impl.go:59	参数校验,通过

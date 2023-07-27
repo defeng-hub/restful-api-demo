@@ -16,7 +16,7 @@ func TestLoadConfigFromToml(t *testing.T) {
 
 func TestLoadconfigFromEnv(t *testing.T) {
 	// 先设置 环境变量
-	//os.Setenv("MYSQL_USERNAME", "mcube-demo")
+	//oss.Setenv("MYSQL_USERNAME", "mcube-demo")
 	should := assert.New(t)
 	err := conf.LoadConfigFromEnv()
 	if should.NoError(err) {

@@ -3,7 +3,6 @@ package impl
 import (
 	"context"
 	"database/sql"
-	"github.com/defeng-hub/restful-api-demo/apps"
 	"github.com/defeng-hub/restful-api-demo/apps/host"
 	"github.com/defeng-hub/restful-api-demo/conf"
 	"github.com/infraboard/mcube/logger"
@@ -11,16 +10,13 @@ import (
 	"github.com/infraboard/mcube/sqlbuilder"
 )
 
-//编译器做静态检查
-var _ host.Service = (*MysqlServiceImpl)(nil)
-
-// 这个对象要进入ioc模块,不过他当前并没有准备好, 需要对实例执行config方法
-var impl = &MysqlServiceImpl{}
-
 type MysqlServiceImpl struct {
 	db *sql.DB
 	l  logger.Logger
 }
+
+//编译器做静态检查
+var _ host.Service = (*MysqlServiceImpl)(nil)
 
 // NewMysqlServiceImpl 创建mysql实现类的实例, 只给测试用例使用了
 func NewMysqlServiceImpl() (*MysqlServiceImpl, error) {
@@ -107,22 +103,4 @@ func (s *MysqlServiceImpl) QueryHost(ctx context.Context, req *host.QueryHostReq
 
 	}
 	return nil, nil
-}
-
-// Config Name #####通过实现了下边两个方法就可以注册到ioc层了#####
-func (s *MysqlServiceImpl) Config() {
-	// 只需要保证config() 执行完成就能实现初始化
-	s.db, _ = conf.C().MySQL.GetDB()
-	s.l = zap.L().Named("Host")
-}
-func (s *MysqlServiceImpl) Name() string {
-	return host.AppName
-}
-
-func init() {
-	// 老方法都是在start的时候,手动把服务注册到IOC层,  案例: apps.HostService, _ = impl.NewMysqlServiceImpl()
-	// 现在采用自动注册,类似于mysql引擎   import _ "xxx"
-	// sql这个库就是案例
-	//apps.HostService = impl // 注册到ioc层
-	apps.RegistryImpl(impl)
 }
