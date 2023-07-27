@@ -9,8 +9,6 @@ GO_FILES := $(shell find . -name '*.go' | grep -v /vendor/ | grep -v _test.go)
 
 all: build
 
-
-
 dep: ## go mod tidy
 	go mod tidy
 
