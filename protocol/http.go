@@ -48,11 +48,11 @@ func (s *HTTPService) Start() error {
 	s.l.Infof("HTTP服务启动成功, 监听地址: %s", s.server.Addr)
 	// 启动 HTTP服务
 	if err := s.server.ListenAndServe(); err != nil {
-
 		if err == http.ErrServerClosed { //如果是 正常监听到关闭信号
-			s.l.Info("service is stopped")
+			s.l.Info("HTTP Service is stopped")
+		} else {
+			s.l.Errorf("start service error, %v", err.Error())
 		}
-		s.l.Errorf("start service error, %v", err.Error())
 		return err
 	}
 	return nil
@@ -60,7 +60,6 @@ func (s *HTTPService) Start() error {
 
 // Stop 停止server
 func (s *HTTPService) Stop() error {
-	s.l.Info("start graceful shutdown")
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
