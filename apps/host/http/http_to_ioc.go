@@ -19,7 +19,7 @@ func (h *Handler) Name() string {
 
 // Registry 注册路由
 func (h *Handler) Registry(r gin.IRouter) {
-	r.GET("/"+host.AppName+"/hosts", h.createHost)
+	r.GET("/"+host.AppName+"/hosts", h.queryHost)
 	r.POST("/"+host.AppName+"/hosts", h.createHost)
 }
 

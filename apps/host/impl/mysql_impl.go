@@ -74,8 +74,7 @@ func (s *MysqlServiceImpl) QueryHost(ctx context.Context, req *host.QueryHostReq
 	}
 	b.Limit(req.OffSet(), uint(req.PageSize))
 	querySQL, args := b.Build()
-	//s.l.Infof("querysql:%s, args:%v", querySQL, args)
-
+	s.l.Infof("生成的sql和参数:%s, args:%v", querySQL, args)
 	stmt, err := s.db.PrepareContext(ctx, querySQL)
 	if err != nil {
 		return nil, err
@@ -103,5 +102,12 @@ func (s *MysqlServiceImpl) QueryHost(ctx context.Context, req *host.QueryHostReq
 	for i := range set.Items {
 		s.l.Infof("set:%v", set.Items[i].Name)
 	}
+
+	// 构建count 查询
+	countSQL, args := b.BuildCount()
+	countStmt, _ := s.db.PrepareContext(ctx, countSQL)
+	defer countStmt.Close()
+	countStmt.QueryRowContext(ctx, args...).Scan(&set.Total)
+
 	return set, nil
 }
