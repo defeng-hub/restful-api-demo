@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/defeng-hub/restful-api-demo/apps/host"
 	"github.com/defeng-hub/restful-api-demo/conf"
@@ -32,14 +33,69 @@ func NewMysqlServiceImpl() (*MysqlServiceImpl, error) {
 	}, nil
 }
 
-func (s *MysqlServiceImpl) DescribeHost(ctx context.Context, request *host.QueryHostRequest) (*host.Host, error) {
-	//TODO implement me
-	panic("implement me")
+func (i *MysqlServiceImpl) DescribeHost(ctx context.Context, req *host.DescribeHostRequest) (*host.Host, error) {
+	b := sqlbuilder.NewBuilder(queryHostSQL)
+	b.Where("r.id = ?", req.Id)
+
+	querySQL, args := b.Build()
+	i.l.Infof("describe sql: %s, args: %v", querySQL, args)
+
+	// query stmt, 构建一个Prepare语句
+	stmt, err := i.db.PrepareContext(ctx, querySQL)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	ins := host.NewHost()
+	row := stmt.QueryRowContext(ctx, args...)
+	err = row.Scan(
+		&ins.Id, &ins.Vendor, &ins.Region, &ins.CreateAt, &ins.ExpireAt,
+		&ins.Type, &ins.Name, &ins.Description, &ins.Status, &ins.UpdateAt, &ins.SyncAt,
+		&ins.Account, &ins.PublicIP, &ins.PrivateIP, &ins.Id,
+		&ins.CPU, &ins.Memory, &ins.GPUAmount, &ins.GPUSpec, &ins.OSType, &ins.OSName, &ins.SerialNumber,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return ins, nil
 }
 
-func (s *MysqlServiceImpl) UpdateHost(ctx context.Context, request *host.UpdateHostRequest) (*host.Host, error) {
-	//TODO implement me
-	panic("implement me")
+func (i *MysqlServiceImpl) UpdateHost(ctx context.Context, req *host.UpdateHostRequest) (*host.Host, error) {
+	// 获取已有对象
+	ins, err := i.DescribeHost(ctx, host.NewDescribeHostRequestWithId(req.Id))
+	if err != nil {
+		return nil, err
+	}
+
+	// 根据更新的模式, 更新对象
+	switch req.UpdateMode {
+	case host.UPDATE_MODE_PUT:
+		if err := ins.Put(req.Host); err != nil {
+			return nil, err
+		}
+		// 整个对象的局部更新
+	case host.UPDATE_MODE_PATCH:
+		if err := ins.Patch(req.Host); err != nil {
+			return nil, err
+		}
+	default:
+		return nil, fmt.Errorf("update_mode only requred put/patch")
+	}
+
+	// 检查更新后的数据是否合法
+	if err := ins.Validate(); err != nil {
+		return nil, err
+	}
+
+	// 更新数据库里面的数据
+	if err := i.update(ctx, ins); err != nil {
+		return nil, err
+	}
+
+	// 返回更新后的对象
+	return ins, nil
 }
 
 func (s *MysqlServiceImpl) DeleteHost(ctx context.Context, request *host.DeleteHostRequest) (*host.Host, error) {

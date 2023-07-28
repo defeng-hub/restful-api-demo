@@ -1,8 +1,11 @@
 package host
 
 import (
-	"github.com/go-playground/validator/v10"
+	"fmt"
 	"time"
+
+	"dario.cat/mergo"
+	"github.com/go-playground/validator/v10"
 )
 
 type Vendor int
@@ -25,8 +28,17 @@ type QueryHostRequest struct {
 	PageNumber uint64 `json:"page_number,omitempty"`
 	Keywords   string `json:"kws"`
 }
+
+type UPDATE_MODE string
+
+const (
+	UPDATE_MODE_PUT   UPDATE_MODE = "put"   // 全量更新
+	UPDATE_MODE_PATCH UPDATE_MODE = "patch" // 局部更新
+)
+
 type UpdateHostRequest struct {
-	*Describe
+	UpdateMode UPDATE_MODE `json:"update_mode"`
+	*Host
 }
 type DeleteHostRequest struct {
 	ID string
@@ -65,9 +77,57 @@ type Describe struct {
 	OSName       string `json:"os_name"`                    // 操作系统名称
 	SerialNumber string `json:"serial_number"`              // 主板序列号
 }
+type DescribeHostRequest struct {
+	Id string
+}
 
+func NewDescribeHostRequestWithId(id string) *DescribeHostRequest {
+	return &DescribeHostRequest{
+		Id: id,
+	}
+}
 func NewQueryHostRequest(pageSize uint64, pageNumber uint64, keywords string) *QueryHostRequest {
 	return &QueryHostRequest{PageSize: pageSize, PageNumber: pageNumber, Keywords: keywords}
+}
+func NewPutUpdateHostRequest(id string) *UpdateHostRequest {
+	h := NewHost()
+	h.Id = id
+	return &UpdateHostRequest{
+		UpdateMode: UPDATE_MODE_PUT,
+		Host:       h,
+	}
+}
+func NewPatchUpdateHostRequest(id string) *UpdateHostRequest {
+	h := NewHost()
+	h.Id = id
+	return &UpdateHostRequest{
+		UpdateMode: UPDATE_MODE_PATCH,
+		Host:       h,
+	}
+}
+
+// 对象全量更新
+func (h *Host) Put(obj *Host) error {
+	if obj.Id != h.Id {
+		return fmt.Errorf("id not equal")
+	}
+
+	*h.Resource = *obj.Resource
+	*h.Describe = *obj.Describe
+	return nil
+}
+
+// 对象的局部更新
+func (h *Host) Patch(obj *Host) error {
+	// if obj.Name != "" {
+	// 	h.Name = obj.Name
+	// }
+	// if obj.CPU != 0 {
+	// 	h.CPU = obj.CPU
+	// }
+	// 比如 obj.A  obj.B  只想修改obj.B该属性
+	//return mergo.MergeWithOverwrite(h, obj)
+	return mergo.Merge(h, *obj, mergo.WithOverride)
 }
 
 func (q *QueryHostRequest) OffSet() int64 {

@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/defeng-hub/restful-api-demo/apps/host"
 )
@@ -62,5 +63,58 @@ func (s *MysqlServiceImpl) save(ctx context.Context, ins *host.Host) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (i *MysqlServiceImpl) update(ctx context.Context, ins *host.Host) error {
+	var (
+		err error
+	)
+
+	// 开启一个事务 tx
+	tx, err := i.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	// 通过Defer处理事务提交方式
+	// 1. 无报错，则Commit 事务
+	// 2. 有报错, 则Rollback 事务
+	defer func() {
+		if err != nil {
+			if err := tx.Rollback(); err != nil {
+				i.l.Error("rollback error, %s", err)
+			}
+		} else {
+			if err := tx.Commit(); err != nil {
+				i.l.Error("commit error, %s", err)
+			}
+		}
+	}()
+
+	var (
+		resStmt, hostStmt *sql.Stmt
+	)
+
+	// 更新 Resource表
+	resStmt, err = tx.PrepareContext(ctx, updateResourceSQL)
+	if err != nil {
+		return err
+	}
+	_, err = resStmt.ExecContext(ctx, ins.Vendor, ins.Region, ins.ExpireAt, ins.Name, ins.Description, ins.Id)
+	if err != nil {
+		return err
+	}
+
+	// 更新 Host表
+	hostStmt, err = tx.PrepareContext(ctx, updateHostSQL)
+	if err != nil {
+		return err
+	}
+	_, err = hostStmt.ExecContext(ctx, ins.CPU, ins.Memory, ins.Id)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

@@ -18,4 +18,7 @@ const (
 	queryHostSQL = `
 	select * from host_resource as r 
 	left join host_describe as d on r.id = d.resource_id`
+
+	updateResourceSQL = `UPDATE host_resource SET vendor=?,region=?,expire_at=?,name=?,description=? WHERE id = ?`
+	updateHostSQL     = `UPDATE host_describe SET cpu=?,memory=? WHERE resource_id = ?`
 )
