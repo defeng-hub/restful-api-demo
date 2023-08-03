@@ -1,7 +1,8 @@
 syntax = "proto3";
 
 package demo.book;
-option go_package = "./;pb";
+// 第一个为生成的目录，第二个为包名
+option go_package = "apps/book;book";
 
 message PageRequest {
   uint64 page_size = 1;
