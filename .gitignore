@@ -20,3 +20,5 @@
 /etc/pro.toml
 logs/*
 /etc/*.env
+
+*.pb.go

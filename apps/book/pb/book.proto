@@ -28,7 +28,7 @@ message Book {
   // @gotags: json:"id"
   string id = 1;
   // 录入时间
-  // @gotags: json:"create_at"
+  // @gotags: json:"create_at" wdf:"wds"
   int64 create_at = 2;
   // 更新时间
   // @gotags: json:"update_at"

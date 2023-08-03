@@ -139,7 +139,7 @@ type Book struct {
 	// @gotags: json:"id"
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// 录入时间
-	// @gotags: json:"create_at"
+	// @gotags: json:"create_at" wdf:"wds"
 	CreateAt int64 `protobuf:"varint,2,opt,name=create_at,json=createAt,proto3" json:"create_at,omitempty"`
 	// 更新时间
 	// @gotags: json:"update_at"
