@@ -1,10 +1,10 @@
 package impl
 
 import (
-	"github.com/defeng-hub/restful-api-demo/apps"
-	"github.com/defeng-hub/restful-api-demo/apps/host"
-	"github.com/defeng-hub/restful-api-demo/conf"
 	"github.com/infraboard/mcube/logger/zap"
+	"restful-api-demo/apps"
+	"restful-api-demo/apps/host"
+	"restful-api-demo/conf"
 )
 
 // 这个对象要进入ioc模块,不过他当前并没有准备好, 需要对实例执行config方法

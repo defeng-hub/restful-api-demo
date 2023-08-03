@@ -1,18 +1,18 @@
 package cmd
 
 import (
-	"github.com/defeng-hub/restful-api-demo/apps"
-	"github.com/defeng-hub/restful-api-demo/conf"
-	"github.com/defeng-hub/restful-api-demo/protocol"
 	"github.com/infraboard/mcube/logger"
 	"github.com/infraboard/mcube/logger/zap"
 	"github.com/spf13/cobra"
 	"os"
 	"os/signal"
+	"restful-api-demo/apps"
+	"restful-api-demo/conf"
+	"restful-api-demo/protocol"
 	"syscall"
 
 	//注册所有的服务实例
-	_ "github.com/defeng-hub/restful-api-demo/all"
+	_ "restful-api-demo/all"
 )
 
 var (

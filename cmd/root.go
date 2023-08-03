@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/defeng-hub/restful-api-demo/version"
 	"github.com/spf13/cobra"
+	"restful-api-demo/version"
 )
 
 var (

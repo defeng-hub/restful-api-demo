@@ -3,11 +3,13 @@ package impl_test
 import (
 	"context"
 	"fmt"
-	"github.com/defeng-hub/restful-api-demo/apps/host"
-	"github.com/defeng-hub/restful-api-demo/apps/host/impl"
-	"github.com/defeng-hub/restful-api-demo/conf"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"restful-api-demo/apps/host"
+	"restful-api-demo/apps/host/impl"
+	"restful-api-demo/conf"
 )
 
 var (

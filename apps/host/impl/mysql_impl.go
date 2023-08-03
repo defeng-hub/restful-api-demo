@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/defeng-hub/restful-api-demo/apps/host"
-	"github.com/defeng-hub/restful-api-demo/conf"
-	"github.com/defeng-hub/restful-api-demo/utils/sqlbuilder"
+	"restful-api-demo/apps/host"
+	"restful-api-demo/conf"
+	"restful-api-demo/utils/sqlbuilder"
 
 	"github.com/infraboard/mcube/logger"
 	"github.com/infraboard/mcube/logger/zap"

@@ -1,9 +1,9 @@
 package http
 
 import (
-	"github.com/defeng-hub/restful-api-demo/apps"
-	"github.com/defeng-hub/restful-api-demo/apps/host"
 	"github.com/gin-gonic/gin"
+	"restful-api-demo/apps"
+	"restful-api-demo/apps/host"
 )
 
 type Handler struct {

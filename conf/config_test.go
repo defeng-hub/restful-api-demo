@@ -1,9 +1,9 @@
 package conf_test
 
 import (
-	"github.com/defeng-hub/restful-api-demo/conf"
 	"github.com/stretchr/testify/assert"
 	"os"
+	"restful-api-demo/conf"
 	"testing"
 )
 

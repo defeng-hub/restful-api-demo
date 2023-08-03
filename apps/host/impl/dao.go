@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/defeng-hub/restful-api-demo/apps/host"
+	"restful-api-demo/apps/host"
 )
 
 //下水道代码

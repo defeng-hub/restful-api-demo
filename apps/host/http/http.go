@@ -1,9 +1,9 @@
 package http
 
 import (
-	"github.com/defeng-hub/restful-api-demo/apps/host"
 	"github.com/gin-gonic/gin"
 	"github.com/infraboard/mcube/http/response"
+	"restful-api-demo/apps/host"
 	"strconv"
 )
 

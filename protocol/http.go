@@ -2,12 +2,12 @@ package protocol
 
 import (
 	"context"
-	"github.com/defeng-hub/restful-api-demo/apps"
-	"github.com/defeng-hub/restful-api-demo/conf"
 	"github.com/gin-gonic/gin"
 	"github.com/infraboard/mcube/logger"
 	"github.com/infraboard/mcube/logger/zap"
 	"net/http"
+	"restful-api-demo/apps"
+	"restful-api-demo/conf"
 	"time"
 )
 

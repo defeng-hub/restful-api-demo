@@ -1,4 +1,4 @@
-module github.com/defeng-hub/restful-api-demo
+module restful-api-demo
 
 go 1.17
 
