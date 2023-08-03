@@ -17,8 +17,11 @@ apps:业务
 1. protoc [去下载](https://github.com/protocolbuffers/protobuf/releases/tag/v3.20.1)
 2. protoc-gen-go [v1.31.0]
 3. protoc-gen-go-grpc [1.3.0]
+4. protoc-go-inject-tag [latest]
 
 ```cmd
 # 安装指定版本的方式
 go install k8s.io/klog@v1.0.0
+
+go install github.com/favadi/protoc-go-inject-tag@latest
 ```

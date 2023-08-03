@@ -1,18 +1,13 @@
 syntax = "proto3";
 
-package demo.book;
+package apps.book;
 // 第一个为生成的目录，第二个为包名
 option go_package = "apps/book;book";
 
-message PageRequest {
-  uint64 page_size = 1;
-  uint64 page_number = 2;
-  int64 offset = 3;
-}
-enum UpdateMode {
-  PUT = 0;
-  PATCH = 1;
-}
+//导入其他包
+import "common/pb/page/page.proto";
+import "common/pb/request/request.proto";
+
 service Service {
   rpc CreateBook(CreateBookRequest) returns(Book);
   rpc QueryBook(QueryBookRequest) returns(BookSet);
@@ -56,7 +51,7 @@ message CreateBookRequest {
 message QueryBookRequest {
   // 分页参数
   // @gotags: json:"page"
-  PageRequest page = 1;
+  common.pb.page.PageRequest page = 1;
   // 关键字参数
   // @gotags: json:"keywords"
   string keywords = 2;
@@ -84,7 +79,7 @@ message UpdateBookRequest {
   string id = 1;
   // 更新模式
   // @gotags: json:"update_mode"
-  UpdateMode update_mode = 2;
+  common.pb.request.UpdateMode update_mode = 2;
   // 更新人
   // @gotags: json:"update_by"
   string update_by = 3;

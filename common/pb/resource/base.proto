@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package common.pb.resource;
+option go_package = "restful-api-demo/common/pb/resource";
+
+enum VisiableMode {
+    // 默认Namespace可见
+    NAMESPACE = 0;
+    // 全局可见
+    GLOBAL = 1;
+}

@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package common.pb.request;
+option go_package = "restful-api-demo/common/pb/request";
+enum UpdateMode {
+    PUT = 0;
+    PATCH = 1;
+}
