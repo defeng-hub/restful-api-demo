@@ -23,8 +23,8 @@ type GinService interface {
 	Config()
 }
 
-// RegistryImpl 注册实现类
-func RegistryImpl(obj ImplService) {
+// RegistryApp 注册实现类
+func RegistryApp(obj ImplService) {
 	if _, ok := implApps[obj.Name()]; ok {
 		panic(fmt.Sprintf("服务:%s 已经注册", obj.Name()))
 	}

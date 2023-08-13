@@ -80,10 +80,10 @@ func (m *MySQL) GetGormDB() (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	gormDB, err := gorm.Open(mysql.New(mysql.Config{
+	gdb, err = gorm.Open(mysql.New(mysql.Config{
 		Conn: sqlDB,
 	}), &gorm.Config{})
-	return gormDB, nil
+	return gdb, nil
 }
 
 // 获取数据库连接池  对内!!

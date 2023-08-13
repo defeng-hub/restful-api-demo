@@ -1,4 +1,4 @@
-package utils
+package wangdefeng
 
 import (
 	"encoding/json"
@@ -19,7 +19,6 @@ func Convert2Target(data, target interface{}) error {
 }
 
 func Json2Target(data string, target interface{}) error {
-
 	bytes := []byte(data)
 	err := json.Unmarshal(bytes, target)
 	if err != nil {

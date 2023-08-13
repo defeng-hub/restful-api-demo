@@ -22,5 +22,5 @@ func (s *Init) Name() string {
 }
 
 func init() {
-	apps.RegistryImpl(inits)
+	apps.RegistryApp(inits)
 }

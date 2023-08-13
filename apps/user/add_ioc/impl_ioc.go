@@ -10,6 +10,8 @@ var userService = new(svr.UserService)
 var menuService = new(svr.MenuService)
 
 func init() {
-	apps.RegistryImpl(userService)
-	apps.RegistryImpl(menuService)
+	apps.RegistryApp(userService)
+	apps.RegistryApp(menuService)
+
+	apps.RegistryGin(httpService)
 }

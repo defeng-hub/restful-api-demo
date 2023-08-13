@@ -1,3 +1,3 @@
 package user
 
-const AppName = "user"
+const AppName = "User"

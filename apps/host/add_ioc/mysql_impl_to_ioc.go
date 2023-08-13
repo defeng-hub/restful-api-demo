@@ -12,5 +12,5 @@ func init() {
 	// 老方法都是在start的时候,手动把服务注册到IOC层,  案例: apps.HostService = impl.NewMysqlServiceImpl()
 	// 现在采用自动注册,类似于mysql引擎   import _ "xxx"
 	// sql这个库就是案例
-	apps.RegistryImpl(impl)
+	apps.RegistryApp(impl)
 }

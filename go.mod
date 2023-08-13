@@ -10,20 +10,20 @@ require (
 require (
 	dario.cat/mergo v1.0.0
 	github.com/caarlos0/env/v6 v6.10.1
+	github.com/casbin/casbin/v2 v2.69.1
 	github.com/casbin/gorm-adapter/v3 v3.18.1
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.8.2
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/infraboard/mcube v1.9.7
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/cobra v1.3.0
 	github.com/stretchr/testify v1.8.1
+	gorm.io/driver/mysql v1.4.1
 	gorm.io/gorm v1.25.3
 )
 
 require (
 	github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible // indirect
-	github.com/casbin/casbin/v2 v2.69.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -68,7 +68,6 @@ require (
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/driver/mysql v1.4.1 // indirect
 	gorm.io/driver/postgres v1.4.4 // indirect
 	gorm.io/driver/sqlserver v1.4.1 // indirect
 	gorm.io/plugin/dbresolver v1.3.0 // indirect

@@ -1,7 +1,3 @@
 package host
 
-const AppName = "host"
-
-//main
-//main
-//main
+const AppName = "Host"

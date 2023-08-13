@@ -44,7 +44,6 @@ func (s *HTTPService) Start() error {
 	// 装置子服务路由, 注册给gin
 	apps.InitGin(s.r)
 
-	s.l.Infof("成功加载的gin apps: %s", apps.LoadedGinApps())
 	s.l.Infof("HTTP服务启动成功, 监听地址: %s", s.server.Addr)
 	// 启动 HTTP服务
 	if err := s.server.ListenAndServe(); err != nil {
