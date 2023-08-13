@@ -6,13 +6,6 @@ import (
 	"restful-api-demo/apps/host"
 )
 
-type Handler struct {
-	svc host.Service
-}
-
-// 用来注册到ioc
-var handler = &Handler{}
-
 func (h *Handler) Name() string {
 	return host.AppName
 }
@@ -31,9 +24,4 @@ func (h *Handler) Config() {
 	if h.svc == nil {
 		panic("在IOC中 没有获取到HostService")
 	}
-}
-
-// 因为实现了上述的三个函数   所以可以注册进去ioc
-func init() {
-	apps.RegistryGin(handler)
 }
