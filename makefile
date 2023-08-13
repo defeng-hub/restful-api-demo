@@ -31,9 +31,9 @@ protoc: ## 手动进入目录生成proto文件
 	protoc -I=. --go_out=. --go_opt="" ./*.proto
 
 gen: ## 使用proto生成代码
-	@protoc -I=. -I=/usr/local/include --go_out=. --go_opt="" --go-grpc_out=. ./apps/*/pb/*.proto
-	@#protoc -I=. -I=/usr/local/include --go_out=. --go_opt=module=${PROJECT_NAME} --go-grpc_out=. --go-grpc_opt=module=${PROJECT_NAME} ./common/pb/*/*.proto
-	@protoc-go-inject-tag -input=./apps/*/*.pb.go
+#	@protoc -I=. -I=/usr/local/include --go_out=. --go_opt="" --go-grpc_out=. ./apps/*/pb/*.proto
+#	@#protoc -I=. -I=/usr/local/include --go_out=. --go_opt=module=${PROJECT_NAME} --go-grpc_out=. --go-grpc_opt=module=${PROJECT_NAME} ./common/pb/*/*.proto
+#	@protoc-go-inject-tag -input=./apps/*/*.pb.go
 
 help: ## 查看帮助
 	@grep -h -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

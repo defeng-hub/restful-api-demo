@@ -36,6 +36,7 @@ var StartCmd = &cobra.Command{
 
 		//对所有app-impl进行初始化
 		apps.InitImpl()
+		zap.L().Named("INIT").Infof("成功加载的app Impl: %s", apps.LoadedImplApps())
 
 		// 如果没close gc是不会回收的
 		ch := make(chan os.Signal, 5)

@@ -75,3 +75,9 @@ func LoadedGinApps() (names []string) {
 	}
 	return
 }
+func LoadedImplApps() (names []string) {
+	for k, _ := range implApps {
+		names = append(names, k)
+	}
+	return
+}

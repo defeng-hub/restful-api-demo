@@ -9,11 +9,15 @@ go语言的 业务纵向分割模板
 ```
 cmd:CLI
 apps:业务
-
+cmd:
+common:公共包
+conf:配置文件
+dist:文件打包生成目录
+etc:程序配置
 ```
 
 
-# 环境
+# 环境（暂时不需要了）
 1. protoc [去下载](https://github.com/protocolbuffers/protobuf/releases/tag/v3.20.1)
 2. protoc-gen-go [v1.31.0]
 3. protoc-gen-go-grpc [1.3.0]

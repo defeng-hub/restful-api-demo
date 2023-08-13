@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql" //mysql 驱动
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"sync"
 	"time"
 )
@@ -13,6 +15,7 @@ import (
 var (
 	config *Config
 	db     *sql.DB
+	gdb    *gorm.DB
 )
 
 // C 想要从外部获取配置, 通过C获取config对象
@@ -71,6 +74,16 @@ func (m *MySQL) GetDB() (*sql.DB, error) {
 		db = conn
 	}
 	return db, nil
+}
+func (m *MySQL) GetGormDB() (*gorm.DB, error) {
+	sqlDB, err := m.GetDB()
+	if err != nil {
+		return nil, err
+	}
+	gormDB, err := gorm.Open(mysql.New(mysql.Config{
+		Conn: sqlDB,
+	}), &gorm.Config{})
+	return gormDB, nil
 }
 
 // 获取数据库连接池  对内!!
