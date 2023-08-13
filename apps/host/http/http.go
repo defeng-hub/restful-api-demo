@@ -7,6 +7,10 @@ import (
 	"strconv"
 )
 
+type Handler struct {
+	svc host.Service
+}
+
 //创建host的http-api
 func (h *Handler) createHost(c *gin.Context) {
 	//获取用户传递的参数,并解析

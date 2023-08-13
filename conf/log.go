@@ -3,6 +3,7 @@ package conf
 import (
 	"fmt"
 	"github.com/infraboard/mcube/logger/zap"
+	"time"
 )
 
 // LogFormat 日志格式
@@ -46,8 +47,8 @@ func LoadGlobalLogger() error {
 
 	// 使用默认配置, 设置日志级别
 	zapConfig := zap.DefaultConfig()
-	zapConfig.Level = level                 // 配置日志的level级别
-	zapConfig.Files.RotateOnStartup = false // 程序每启动一次, 不必要生成一个新的日志文件
+	zapConfig.Level = level                // 配置日志的level级别
+	zapConfig.Files.RotateOnStartup = true // 程序每启动一次, 生成一个新的日志文件
 
 	// 配置日志的输出方式
 	switch lc.To {
@@ -57,9 +58,13 @@ func LoadGlobalLogger() error {
 	case ToFile:
 		zapConfig.ToStderr = false
 		zapConfig.ToFiles = true
+		time_s := time.Now().Format("2006-01-02-15:04:05")
 		//输出到文件
-		zapConfig.Files.Name = "api.log"
+		zapConfig.Files.Name = time_s + ".log"
 		zapConfig.Files.Path = lc.OutDir
+		zapConfig.Files.MaxSize = 10 * 1024 * 1024
+		zapConfig.Files.MaxBackups = 7
+
 	default:
 		zapConfig.ToStderr = true // 输出到控制台
 		zapConfig.ToFiles = false // 不输出到文件
