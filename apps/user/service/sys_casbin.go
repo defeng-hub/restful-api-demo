@@ -24,7 +24,7 @@ var CasbinServiceApp = new(CasbinService)
 //@return: error
 func (casbinService *CasbinService) UpdateCasbin(authorityId string, casbinInfos []request.CasbinInfo) error {
 	casbinService.ClearCasbin(0, authorityId)
-	rules := [][]string{}
+	var rules [][]string
 	for _, v := range casbinInfos {
 		cm := model.CasbinModel{
 			Ptype:       "p",
@@ -90,9 +90,10 @@ var (
 //@return: *casbin.Enforcer
 func (casbinService *CasbinService) Casbin() *casbin.SyncedEnforcer {
 	once.Do(func() {
-		a, _ := gormadapter.NewAdapterByDB(casbinService.db)
+		a, _ := gormadapter.NewAdapterByDBUseTableName(casbinService.db, "", "casbin_rule")
 		syncedEnforcer, _ = casbin.NewSyncedEnforcer("./etc/rbac_model.conf", a)
 	})
+
 	_ = syncedEnforcer.LoadPolicy()
 	return syncedEnforcer
 }

@@ -7,8 +7,9 @@ import (
 )
 
 var ImplMap = map[string]string{
-	"sys_user": "UserService",
-	"sys_menu": "MenuService",
+	"sys_user":   "UserService",
+	"sys_menu":   "MenuService",
+	"sys_casbin": "CasbinService",
 }
 
 // Config 通过实现了下边两个方法就可以注册到ioc层了
@@ -28,4 +29,12 @@ func (s *MenuService) Config() {
 }
 func (s *MenuService) Name() string {
 	return user.AppName + ImplMap["sys_menu"]
+}
+
+// Name sys_casbin.go
+func (s *CasbinService) Name() string {
+	return user.AppName + ImplMap["sys_casbin"]
+}
+func (s *CasbinService) Config() {
+	s.db, _ = conf.C().MySQL.GetGormDB()
 }

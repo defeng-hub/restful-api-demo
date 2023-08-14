@@ -8,8 +8,6 @@ import (
 
 type Init struct{}
 
-var inits = new(Init)
-
 func (s *Init) Config() {
 	db, err := conf.C().MySQL.GetGormDB()
 	if err != nil {
@@ -18,9 +16,10 @@ func (s *Init) Config() {
 	RegisterTables(db)
 }
 func (s *Init) Name() string {
-	return user.AppName
+	return user.AppName + "Init"
 }
 
 func init() {
+	var inits = new(Init)
 	apps.RegistryApp(inits)
 }
