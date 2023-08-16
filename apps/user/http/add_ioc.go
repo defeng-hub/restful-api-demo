@@ -9,7 +9,7 @@ import (
 )
 
 type Handler struct {
-	UserApi   api.UserApi
+	//UserApi   api.UserApi
 	CasbinApi api.CasbinApi
 }
 
@@ -18,7 +18,7 @@ func (h *Handler) Name() string {
 }
 
 func (h *Handler) Config() {
-	h.UserApi.Srv = apps.GetImpl(new(service.UserService).Name()).(*service.UserService)
+	//h.UserApi.Srv = apps.GetImpl(new(service.UserService).Name()).(*service.UserService)
 	h.CasbinApi.Srv = apps.GetImpl(new(service.CasbinService).Name()).(*service.CasbinService)
 }
 

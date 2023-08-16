@@ -28,6 +28,7 @@ type Config struct {
 	App   *App   `toml:"app"`
 	MySQL *MySQL `toml:"mysql"`
 	Log   *log   `toml:"log"`
+	Jwt   *Jwt   `toml:"jwt"`
 }
 type log struct {
 	Level  string    `toml:"level" env:"LOG_LEVEL"`
@@ -40,6 +41,12 @@ type App struct {
 	Host string `toml:"host" env:"APP_HOST"`
 	Port string `toml:"port" env:"APP_PORT"`
 	Key  string `toml:"key" env:"APP_KEY"`
+}
+type Jwt struct {
+	SigningKey  string `toml:"signing-key"`  // jwt签名
+	ExpiresTime int64  `toml:"expires-time"` // 过期时间
+	BufferTime  int64  `toml:"buffer-time"`  // 缓冲时间
+	Issuer      string `toml:"issuer"`       // 签发者
 }
 
 type MySQL struct {

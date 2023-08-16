@@ -37,8 +37,6 @@ func (userService *UserService) Register(u model.SysUser) (err error, userInter 
 }
 
 // Login
-//@author: [piexlmax](https://github.com/piexlmax)
-//@function: Login
 //@description: 用户登录
 //@param: u *model.SysUser
 //@return: err error, userInter *model.SysUser
@@ -58,13 +56,11 @@ func (userService *UserService) Login(u *model.SysUser) (err error, userInter *m
 		}
 	}
 
-	user.Authority.DefaultRouter = "main"
+	//user.Authority.DefaultRouter = "main"
 	return err, &user
 }
 
 // ChangePassword
-//@author: [piexlmax](https://github.com/piexlmax)
-//@function: ChangePassword
 //@description: 修改用户密码
 //@param: u *model.SysUser, newPassword string
 //@return: err error, userInter *model.SysUser
@@ -75,12 +71,10 @@ func (userService *UserService) ChangePassword(u *model.SysUser, newPassword str
 	return err, u
 }
 
-//@author: [piexlmax](https://github.com/piexlmax)
-//@function: GetUserInfoList
+// GetUserInfoList
 //@description: 分页获取数据
 //@param: info request.PageInfo
 //@return: err error, list interface{}, total int64
-
 func (userService *UserService) GetUserInfoList(info request.PageInfo) (err error, list interface{}, total int64) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)

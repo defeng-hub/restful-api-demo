@@ -1,25 +1,25 @@
-package system
+package api
 
 import (
-	"github.com/go-redis/redis"
+	"github.com/gin-gonic/gin"
+	"github.com/infraboard/mcube/logger"
+	"go.uber.org/zap"
 	"math/rand"
+	"restful-api-demo/apps/user/model"
 	"restful-api-demo/apps/user/service"
+	"restful-api-demo/conf"
 	"strconv"
 
-	"byweb/global"
-	"byweb/model/common/request"
-	"byweb/model/common/response"
-	"byweb/model/system"
-	systemRes "byweb/model/system/response"
-	"byweb/utils"
+	utils "restful-api-demo/apps/user/common"
+	"restful-api-demo/apps/user/common/request"
+	"restful-api-demo/apps/user/common/response"
 	systemReq "restful-api-demo/apps/user/model/request"
-
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
+	systemRes "restful-api-demo/apps/user/model/response"
 )
 
-type UserApi struct {
+type BaseApi struct {
 	Srv *service.UserService
+	l   logger.Logger
 }
 
 //生产n位随机字符
@@ -34,80 +34,33 @@ func generateRandomString(length int) string {
 	return string(result)
 }
 
-func (b *UserApi) PhoneLogin(c *gin.Context) {
-	var l systemReq.PhoneLogin
-	_ = c.ShouldBindJSON(&l)
-	if err := utils.Verify(l, utils.Rules{"Phone": {utils.NotEmpty()}, "YzmNum": {utils.NotEmpty()}}); err != nil {
-		response.FailWithMessage(err.Error(), c)
-		return
-	}
-
-	//校验验证码
-	capdata := system.CaptchaData{}
-	err := global.GVA_DB.Where("captcha_type = 1 and phone = ? and value = ?", l.Phone, l.YzmNum).First(&capdata).Error
-	if err != nil {
-		response.Result(-1, nil, "验证码错误", c)
-		return
-	}
-
-	//删除验证码
-	tx := global.GVA_DB.Unscoped().Delete(&capdata, capdata.ID).Error
-	if tx != nil {
-		response.Result(-2, nil, "验证码错误", c)
-		return
-	}
-
-	err, user := userService.FindUserByUsername(l.Phone)
-	if err != nil {
-		//	不存在这个手机号
-		// 2 没号就注册
-		err, u := userService.Register(system.SysUser{
-			Username: l.Phone,
-			Password: generateRandomString(10),
-			NickName: "上岸~",
-		})
-		byappService.U.CreateToken(u.ID, l.Phone)
-		if err != nil {
-			response.FailWithMessage("验证码错误", c)
-			return
-		}
-		b.tokenNext(c, u)
-		return
-	}
-	byappService.U.UpdateToken(l.Phone)
-	//1 有号就登录
-	b.tokenNext(c, *user)
-}
-
+// Login
 // @Tags Base
 // @Summary 用户登录
 // @Produce  application/json
 // @Param data body systemReq.Login true "用户名, 密码, 验证码"
 // @Success 200 {object} response.Response{data=systemRes.LoginResponse,msg=string} "返回包括用户信息,token,过期时间"
 // @Router /base/login [post]
-func (b *UserApi) Login(c *gin.Context) {
+func (b *BaseApi) Login(c *gin.Context) {
 	var l systemReq.Login
 	_ = c.ShouldBindJSON(&l)
 	if err := utils.Verify(l, utils.LoginVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	if store.Verify(l.CaptchaId, l.Captcha, true) {
-		u := &system.SysUser{Username: l.Username, Password: l.Password}
-		if err, user := userService.Login(u); err != nil {
-			global.GVA_LOG.Error("登陆失败! 用户名不存在或者密码错误!", zap.Error(err))
-			response.FailWithMessage("用户名不存在或者密码错误", c)
-		} else {
-			b.tokenNext(c, *user)
-		}
+
+	u := &model.SysUser{Username: l.Username, Password: l.Password}
+	if err, user := b.Srv.Login(u); err != nil {
+		b.l.Error("登陆失败! 用户名不存在或者密码错误!", zap.Error(err))
+		response.FailWithMessage("用户名不存在或者密码错误", c)
 	} else {
-		response.FailWithMessage("验证码错误", c)
+		b.tokenNext(c, *user)
 	}
 }
 
 // 登录以后签发jwt
-func (b *UserApi) tokenNext(c *gin.Context, user system.SysUser) {
-	j := &utils.JWT{SigningKey: []byte(global.GVA_CONFIG.JWT.SigningKey)} // 唯一签名
+func (b *BaseApi) tokenNext(c *gin.Context, user model.SysUser) {
+	j := &utils.JWT{SigningKey: []byte(conf.C().Jwt.SigningKey)} // 唯一签名
 	claims := j.CreateClaims(systemReq.BaseClaims{
 		UUID:        user.UUID,
 		ID:          user.ID,
@@ -117,82 +70,51 @@ func (b *UserApi) tokenNext(c *gin.Context, user system.SysUser) {
 	})
 	token, err := j.CreateToken(claims)
 	if err != nil {
-		global.GVA_LOG.Error("获取token失败!", zap.Error(err))
+		b.l.Error("获取token失败!", zap.Error(err))
 		response.FailWithMessage("获取token失败", c)
 		return
 	}
-	if !global.GVA_CONFIG.System.UseMultipoint {
-		response.OkWithDetailed(systemRes.LoginResponse{
-			User:      user,
-			Token:     token,
-			ExpiresAt: claims.StandardClaims.ExpiresAt * 1000,
-		}, "登录成功", c)
-		return
-	}
 
-	if err, jwtStr := jwtService.GetRedisJWT(user.Username); err == redis.Nil {
-		if err := jwtService.SetRedisJWT(token, user.Username); err != nil {
-			global.GVA_LOG.Error("设置登录状态失败!", zap.Error(err))
-			response.FailWithMessage("设置登录状态失败", c)
-			return
-		}
-		response.OkWithDetailed(systemRes.LoginResponse{
-			User:      user,
-			Token:     token,
-			ExpiresAt: claims.StandardClaims.ExpiresAt * 1000,
-		}, "登录成功", c)
-	} else if err != nil {
-		global.GVA_LOG.Error("设置登录状态失败!", zap.Error(err))
-		response.FailWithMessage("设置登录状态失败", c)
-	} else {
-		var blackJWT system.JwtBlacklist
-		blackJWT.Jwt = jwtStr
-		if err := jwtService.JsonInBlacklist(blackJWT); err != nil {
-			response.FailWithMessage("jwt作废失败", c)
-			return
-		}
-		if err := jwtService.SetRedisJWT(token, user.Username); err != nil {
-			response.FailWithMessage("设置登录状态失败", c)
-			return
-		}
-		response.OkWithDetailed(systemRes.LoginResponse{
-			User:      user,
-			Token:     token,
-			ExpiresAt: claims.StandardClaims.ExpiresAt * 1000,
-		}, "登录成功", c)
-	}
+	response.OkWithDetailed(systemRes.LoginResponse{
+		User:      user,
+		Token:     token,
+		ExpiresAt: claims.StandardClaims.ExpiresAt * 1000,
+	}, "登录成功", c)
+	return
 }
 
+// Register
 // @Tags SysUser
 // @Summary 用户注册账号
 // @Produce  application/json
 // @Param data body systemReq.Register true "用户名, 昵称, 密码, 角色ID"
 // @Success 200 {object} response.Response{data=systemRes.SysUserResponse,msg=string} "用户注册账号,返回包括用户信息"
 // @Router /user/register [post]
-func (b *UserApi) Register(c *gin.Context) {
+func (b *BaseApi) Register(c *gin.Context) {
 	var r systemReq.Register
 	_ = c.ShouldBindJSON(&r)
 	if err := utils.Verify(r, utils.RegisterVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	var authorities []system.SysAuthority
+	var authorities []model.SysAuthority
 	for _, v := range r.AuthorityIds {
-		authorities = append(authorities, system.SysAuthority{
+		authorities = append(authorities, model.SysAuthority{
 			AuthorityId: v,
 		})
 	}
-	user := &system.SysUser{Username: r.Username, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg,
+	user := &model.SysUser{Username: r.Username, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg,
 		AuthorityId: r.AuthorityId, Authorities: authorities}
-	err, userReturn := userService.Register(*user)
+	err, userReturn := b.Srv.Register(*user)
 	if err != nil {
-		global.GVA_LOG.Error("注册失败!", zap.Error(err))
+		b.l.Error("注册失败!", zap.Error(err))
 		response.FailWithDetailed(systemRes.SysUserResponse{User: userReturn}, "注册失败", c)
 	} else {
 		response.OkWithDetailed(systemRes.SysUserResponse{User: userReturn}, "注册成功", c)
 	}
 }
 
+// ChangePassword
 // @Tags SysUser
 // @Summary 用户修改密码
 // @Security ApiKeyAuth
@@ -200,22 +122,23 @@ func (b *UserApi) Register(c *gin.Context) {
 // @Param data body systemReq.ChangePasswordStruct true "用户名, 原密码, 新密码"
 // @Success 200 {object} response.Response{msg=string} "用户修改密码"
 // @Router /user/changePassword [post]
-func (b *UserApi) ChangePassword(c *gin.Context) {
+func (b *BaseApi) ChangePassword(c *gin.Context) {
 	var user systemReq.ChangePasswordStruct
 	_ = c.ShouldBindJSON(&user)
 	if err := utils.Verify(user, utils.ChangePasswordVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	u := &system.SysUser{Username: user.Username, Password: user.Password}
-	if err, _ := userService.ChangePassword(u, user.NewPassword); err != nil {
-		global.GVA_LOG.Error("修改失败!", zap.Error(err))
+	u := &model.SysUser{Username: user.Username, Password: user.Password}
+	if err, _ := b.Srv.ChangePassword(u, user.NewPassword); err != nil {
+		b.l.Error("修改失败!", zap.Error(err))
 		response.FailWithMessage("修改失败，原密码与当前账户不符", c)
 	} else {
 		response.OkWithMessage("修改成功", c)
 	}
 }
 
+// GetUserList
 // @Tags SysUser
 // @Summary 分页获取用户列表
 // @Security ApiKeyAuth
@@ -224,15 +147,15 @@ func (b *UserApi) ChangePassword(c *gin.Context) {
 // @Param data body request.PageInfo true "页码, 每页大小"
 // @Success 200 {object} response.Response{data=response.PageResult,msg=string} "分页获取用户列表,返回包括列表,总数,页码,每页数量"
 // @Router /user/getUserList [post]
-func (b *UserApi) GetUserList(c *gin.Context) {
+func (b *BaseApi) GetUserList(c *gin.Context) {
 	var pageInfo request.PageInfo
 	_ = c.ShouldBindJSON(&pageInfo)
 	if err := utils.Verify(pageInfo, utils.PageInfoVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	if err, list, total := userService.GetUserInfoList(pageInfo); err != nil {
-		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+	if err, list, total := b.Srv.GetUserInfoList(pageInfo); err != nil {
+		b.l.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)
 	} else {
 		response.OkWithDetailed(response.PageResult{
@@ -244,6 +167,7 @@ func (b *UserApi) GetUserList(c *gin.Context) {
 	}
 }
 
+// SetUserAuthority
 // @Tags SysUser
 // @Summary 更改用户权限
 // @Security ApiKeyAuth
@@ -252,7 +176,7 @@ func (b *UserApi) GetUserList(c *gin.Context) {
 // @Param data body systemReq.SetUserAuth true "用户UUID, 角色ID"
 // @Success 200 {object} response.Response{msg=string} "设置用户权限"
 // @Router /user/setUserAuthority [post]
-func (b *UserApi) SetUserAuthority(c *gin.Context) {
+func (b *BaseApi) SetUserAuthority(c *gin.Context) {
 	var sua systemReq.SetUserAuth
 	_ = c.ShouldBindJSON(&sua)
 	if UserVerifyErr := utils.Verify(sua, utils.SetUserAuthorityVerify); UserVerifyErr != nil {
@@ -261,15 +185,15 @@ func (b *UserApi) SetUserAuthority(c *gin.Context) {
 	}
 	userID := utils.GetUserID(c)
 	uuid := utils.GetUserUuid(c)
-	if err := userService.SetUserAuthority(userID, uuid, sua.AuthorityId); err != nil {
-		global.GVA_LOG.Error("修改失败!", zap.Error(err))
+	if err := b.Srv.SetUserAuthority(userID, uuid, sua.AuthorityId); err != nil {
+		b.l.Error("修改失败!", zap.Error(err))
 		response.FailWithMessage(err.Error(), c)
 	} else {
 		claims := utils.GetUserInfo(c)
-		j := &utils.JWT{SigningKey: []byte(global.GVA_CONFIG.JWT.SigningKey)} // 唯一签名
+		j := &utils.JWT{SigningKey: []byte(conf.C().Jwt.SigningKey)} // 唯一签名
 		claims.AuthorityId = sua.AuthorityId
 		if token, err := j.CreateToken(*claims); err != nil {
-			global.GVA_LOG.Error("修改失败!", zap.Error(err))
+			b.l.Error("修改失败!", zap.Error(err))
 			response.FailWithMessage(err.Error(), c)
 		} else {
 			c.Header("new-token", token)
@@ -280,6 +204,7 @@ func (b *UserApi) SetUserAuthority(c *gin.Context) {
 	}
 }
 
+// SetUserAuthorities
 // @Tags SysUser
 // @Summary 设置用户权限
 // @Security ApiKeyAuth
@@ -288,17 +213,18 @@ func (b *UserApi) SetUserAuthority(c *gin.Context) {
 // @Param data body systemReq.SetUserAuthorities true "用户UUID, 角色ID"
 // @Success 200 {object} response.Response{msg=string} "设置用户权限"
 // @Router /user/setUserAuthorities [post]
-func (b *UserApi) SetUserAuthorities(c *gin.Context) {
+func (b *BaseApi) SetUserAuthorities(c *gin.Context) {
 	var sua systemReq.SetUserAuthorities
 	_ = c.ShouldBindJSON(&sua)
-	if err := userService.SetUserAuthorities(sua.ID, sua.AuthorityIds); err != nil {
-		global.GVA_LOG.Error("修改失败!", zap.Error(err))
+	if err := b.Srv.SetUserAuthorities(sua.ID, sua.AuthorityIds); err != nil {
+		b.l.Error("修改失败!", zap.Error(err))
 		response.FailWithMessage("修改失败", c)
 	} else {
 		response.OkWithMessage("修改成功", c)
 	}
 }
 
+// DeleteUser
 // @Tags SysUser
 // @Summary 删除用户
 // @Security ApiKeyAuth
@@ -307,7 +233,7 @@ func (b *UserApi) SetUserAuthorities(c *gin.Context) {
 // @Param data body request.GetById true "用户ID"
 // @Success 200 {object} response.Response{msg=string} "删除用户"
 // @Router /user/deleteUser [delete]
-func (b *UserApi) DeleteUser(c *gin.Context) {
+func (b *BaseApi) DeleteUser(c *gin.Context) {
 	var reqId request.GetById
 	_ = c.ShouldBindJSON(&reqId)
 	if err := utils.Verify(reqId, utils.IdVerify); err != nil {
@@ -319,14 +245,15 @@ func (b *UserApi) DeleteUser(c *gin.Context) {
 		response.FailWithMessage("删除失败, 自杀失败", c)
 		return
 	}
-	if err := userService.DeleteUser(reqId.ID); err != nil {
-		global.GVA_LOG.Error("删除失败!", zap.Error(err))
+	if err := b.Srv.DeleteUser(reqId.ID); err != nil {
+		b.l.Error("删除失败!", zap.Error(err))
 		response.FailWithMessage("删除失败", c)
 	} else {
 		response.OkWithMessage("删除成功", c)
 	}
 }
 
+// SetUserInfo
 // @Tags SysUser
 // @Summary 设置用户信息
 // @Security ApiKeyAuth
@@ -335,21 +262,22 @@ func (b *UserApi) DeleteUser(c *gin.Context) {
 // @Param data body system.SysUser true "ID, 用户名, 昵称, 头像链接"
 // @Success 200 {object} response.Response{data=map[string]interface{},msg=string} "设置用户信息"
 // @Router /user/setUserInfo [put]
-func (b *UserApi) SetUserInfo(c *gin.Context) {
-	var user system.SysUser
+func (b *BaseApi) SetUserInfo(c *gin.Context) {
+	var user model.SysUser
 	_ = c.ShouldBindJSON(&user)
 	if err := utils.Verify(user, utils.IdVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	if err, ReqUser := userService.SetUserInfo(user); err != nil {
-		global.GVA_LOG.Error("设置失败!", zap.Error(err))
+	if err, ReqUser := b.Srv.SetUserInfo(user); err != nil {
+		b.l.Error("设置失败!", zap.Error(err))
 		response.FailWithMessage("设置失败", c)
 	} else {
 		response.OkWithDetailed(gin.H{"userInfo": ReqUser}, "设置成功", c)
 	}
 }
 
+// SetSelfInfo
 // @Tags SysUser
 // @Summary 设置用户信息
 // @Security ApiKeyAuth
@@ -358,35 +286,35 @@ func (b *UserApi) SetUserInfo(c *gin.Context) {
 // @Param data body system.SysUser true "ID, 用户名, 昵称, 头像链接"
 // @Success 200 {object} response.Response{data=map[string]interface{},msg=string} "设置用户信息"
 // @Router /user/SetSelfInfo [put]
-func (b *UserApi) SetSelfInfo(c *gin.Context) {
-	var user system.SysUser
+func (b *BaseApi) SetSelfInfo(c *gin.Context) {
+	var user model.SysUser
 	_ = c.ShouldBindJSON(&user)
 	user.ID = utils.GetUserID(c)
-	if err, ReqUser := userService.SetUserInfo(user); err != nil {
-		global.GVA_LOG.Error("设置失败!", zap.Error(err))
+	if err, ReqUser := b.Srv.SetUserInfo(user); err != nil {
+		b.l.Error("设置失败!", zap.Error(err))
 		response.FailWithMessage("设置失败", c)
 	} else {
 		response.OkWithDetailed(gin.H{"userInfo": ReqUser}, "设置成功", c)
 	}
 }
 
-// @Tags SysUser
-// @Summary 获取用户信息
+// GetUserInfo
 // @Security ApiKeyAuth
 // @accept application/json
 // @Produce application/json
 // @Success 200 {object} response.Response{data=map[string]interface{},msg=string} "获取用户信息"
 // @Router /user/getUserInfo [get]
-func (b *UserApi) GetUserInfo(c *gin.Context) {
+func (b *BaseApi) GetUserInfo(c *gin.Context) {
 	uuid := utils.GetUserUuid(c)
-	if err, ReqUser := userService.GetUserInfo(uuid); err != nil {
-		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+	if err, ReqUser := b.Srv.GetUserInfo(uuid); err != nil {
+		b.l.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)
 	} else {
 		response.OkWithDetailed(gin.H{"userInfo": ReqUser}, "获取成功", c)
 	}
 }
 
+// ResetPassword
 // @Tags SysUser
 // @Summary 用户修改密码
 // @Security ApiKeyAuth
@@ -394,11 +322,11 @@ func (b *UserApi) GetUserInfo(c *gin.Context) {
 // @Param data body system.SysUser true "ID"
 // @Success 200 {object} response.Response{msg=string} "用户修改密码"
 // @Router /user/resetPassword [post]
-func (b *UserApi) ResetPassword(c *gin.Context) {
-	var user system.SysUser
+func (b *BaseApi) ResetPassword(c *gin.Context) {
+	var user model.SysUser
 	_ = c.ShouldBindJSON(&user)
-	if err := userService.ResetPassword(user.ID); err != nil {
-		global.GVA_LOG.Error("重置失败!", zap.Error(err))
+	if err := b.Srv.ResetPassword(user.ID); err != nil {
+		b.l.Error("重置失败!", zap.Error(err))
 		response.FailWithMessage("重置失败"+err.Error(), c)
 	} else {
 		response.OkWithMessage("重置成功", c)
