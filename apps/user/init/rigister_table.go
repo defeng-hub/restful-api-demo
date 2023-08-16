@@ -1,10 +1,10 @@
 package init
 
 import (
-	"github.com/infraboard/mcube/logger/zap"
 	"gorm.io/gorm"
 	"os"
 	"restful-api-demo/apps/user/model"
+	"restful-api-demo/common/logger/zap"
 )
 
 //sys_data_authority_id

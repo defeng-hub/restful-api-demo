@@ -1,5 +1,6 @@
 package model
 
+// 感觉没有
 type SysMenu struct {
 	SysBaseMenu
 	MenuId      string                 `json:"menuId" gorm:"comment:菜单ID" example:"menu_id"`

@@ -1,6 +1,8 @@
 package conf
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func (a *App) HttpAddr() string {
 	return fmt.Sprintf("%s:%s", a.Host, a.Port)
@@ -38,8 +40,8 @@ func newDefaultMysql() *MySQL {
 }
 
 // newDefaultLog
-func newDefaultLog() *log {
-	return &log{
+func newDefaultLog() *Log {
+	return &Log{
 		Level:  "debug",
 		Format: "text",
 		To:     "stdout",

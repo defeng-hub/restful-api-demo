@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
-	"github.com/infraboard/mcube/logger"
+	"restful-api-demo/common/logger"
 
 	"restful-api-demo/apps/user/common/request"
 	"restful-api-demo/apps/user/model"
@@ -47,15 +47,8 @@ func (userService *UserService) Login(u *model.SysUser) (err error, userInter *m
 
 	var user model.SysUser
 	u.Password = utils.MD5V([]byte(u.Password))
-	err = userService.db.Where("username = ? AND password = ?", u.Username, u.Password).Preload("Authorities").Preload("Authority").First(&user).Error
-	if err == nil {
-		var am model.SysMenu
-		ferr := userService.db.First(&am, "name = ? AND authority_id = ?", user.Authority.DefaultRouter, user.AuthorityId).Error
-		if errors.Is(ferr, gorm.ErrRecordNotFound) {
-			user.Authority.DefaultRouter = "404"
-		}
-	}
-
+	err = userService.db.Where("username = ? AND password = ?", u.Username, u.Password).
+		Preload("Authorities").Preload("Authority").First(&user).Error
 	//user.Authority.DefaultRouter = "main"
 	return err, &user
 }

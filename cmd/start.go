@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"github.com/infraboard/mcube/logger"
-	"github.com/infraboard/mcube/logger/zap"
 	"github.com/spf13/cobra"
 	"os"
 	"os/signal"
 	"restful-api-demo/apps"
+	"restful-api-demo/common/logger"
+	"restful-api-demo/common/logger/zap"
 	"restful-api-demo/conf"
 	"restful-api-demo/protocol"
 	"syscall"

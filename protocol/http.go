@@ -3,10 +3,10 @@ package protocol
 import (
 	"context"
 	"github.com/gin-gonic/gin"
-	"github.com/infraboard/mcube/logger"
-	"github.com/infraboard/mcube/logger/zap"
 	"net/http"
 	"restful-api-demo/apps"
+	"restful-api-demo/common/logger"
+	"restful-api-demo/common/logger/zap"
 	"restful-api-demo/conf"
 	"time"
 )

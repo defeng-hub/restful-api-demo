@@ -9,8 +9,8 @@ import (
 	"restful-api-demo/conf"
 	"restful-api-demo/utils/sqlbuilder"
 
-	"github.com/infraboard/mcube/logger"
-	"github.com/infraboard/mcube/logger/zap"
+	"restful-api-demo/common/logger"
+	"restful-api-demo/common/logger/zap"
 )
 
 type MysqlServiceImpl struct {

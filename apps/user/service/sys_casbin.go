@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 	"restful-api-demo/apps/user/model"
 	"restful-api-demo/apps/user/model/request"
+	"restful-api-demo/conf"
 	"sync"
 
 	gormadapter "github.com/casbin/gorm-adapter/v3"
@@ -89,9 +90,17 @@ var (
 //@description: 持久化到数据库  引入自定义规则
 //@return: *casbin.Enforcer
 func (casbinService *CasbinService) Casbin() *casbin.SyncedEnforcer {
+
 	once.Do(func() {
-		a, _ := gormadapter.NewAdapterByDBUseTableName(casbinService.db, "", "casbin_rule")
-		syncedEnforcer, _ = casbin.NewSyncedEnforcer("./etc/rbac_model.conf", a)
+		casbinService.db, _ = conf.C().MySQL.GetGormDB()
+		a, err := gormadapter.NewAdapterByDB(casbinService.db)
+		if err != nil {
+			conf.L().Named("Init Casbin").Error(err)
+		}
+		syncedEnforcer, err = casbin.NewSyncedEnforcer("./etc/rbac_model.conf", a)
+		if err != nil {
+			conf.L().Named("Init Casbin").Error(err)
+		}
 	})
 
 	_ = syncedEnforcer.LoadPolicy()

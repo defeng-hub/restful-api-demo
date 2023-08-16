@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/infraboard/mcube/logger/zap"
 	"restful-api-demo/apps/user"
 	"restful-api-demo/conf"
 )
@@ -12,11 +11,13 @@ var ImplMap = map[string]string{
 	"sys_casbin": "CasbinService",
 }
 
+// TODO:需要在这注册每一个app
+
 // Config 通过实现了下边两个方法就可以注册到ioc层了
 // sys_user.go
 func (s *UserService) Config() {
 	s.db, _ = conf.C().MySQL.GetGormDB()
-	s.l = zap.L().Named("User Service")
+	s.l = conf.L().Named(s.Name())
 }
 func (s *UserService) Name() string {
 	return user.AppName + ImplMap["sys_user"]

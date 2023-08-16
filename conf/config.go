@@ -4,11 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"sync"
+	"time"
+
+	"restful-api-demo/common/logger/zap"
+
 	_ "github.com/go-sql-driver/mysql" //mysql 驱动
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"sync"
-	"time"
 )
 
 // 为了不让程序在运行时恶意修改,设置成私有变量
@@ -22,15 +25,18 @@ var (
 func C() *Config {
 	return config
 }
+func L() *zap.Logger {
+	return zap.L()
+}
 
 // Config 应用配置
 type Config struct {
 	App   *App   `toml:"app"`
 	MySQL *MySQL `toml:"mysql"`
-	Log   *log   `toml:"log"`
+	Log   *Log   `toml:"log"`
 	Jwt   *Jwt   `toml:"jwt"`
 }
-type log struct {
+type Log struct {
 	Level  string    `toml:"level" env:"LOG_LEVEL"`
 	OutDir string    `toml:"out_dir" env:"LOG_PATH_DIR"`
 	Format LogFormat `toml:"format" env:"LOG_FORMAT"`
@@ -43,9 +49,9 @@ type App struct {
 	Key  string `toml:"key" env:"APP_KEY"`
 }
 type Jwt struct {
-	SigningKey  string `toml:"signing-key"`  // jwt签名
-	ExpiresTime int64  `toml:"expires-time"` // 过期时间
-	BufferTime  int64  `toml:"buffer-time"`  // 缓冲时间
+	SigningKey  string `toml:"signing_key"`  // jwt签名
+	ExpiresTime int64  `toml:"expires_time"` // 过期时间
+	BufferTime  int64  `toml:"buffer_time"`  // 缓冲时间
 	Issuer      string `toml:"issuer"`       // 签发者
 }
 
@@ -97,7 +103,8 @@ func (m *MySQL) GetGormDB() (*gorm.DB, error) {
 func (m *MySQL) getDBConn() (*sql.DB, error) {
 	var err error
 	//multiStatements=true 运行执行多行sql
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&multiStatements=true", m.UserName, m.Password, m.Host, m.Port, m.Database)
+	//一个数据库链接配置：charset=utf8mb4&parseTime=True&loc=Local
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?multiStatements=true&charset=utf8mb4&parseTime=True&loc=Local", m.UserName, m.Password, m.Host, m.Port, m.Database)
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("connect to mysql<%s> error, %s", dsn, err.Error())

@@ -111,6 +111,8 @@ func (authorityService *AuthorityService) DeleteAuthority(auth *model.SysAuthori
 		}
 	}
 	err = authorityService.db.Delete(&[]model.SysUseAuthority{}, "sys_authority_authority_id = ?", auth.AuthorityId).Error
+
+	//清除 casbin权限
 	CasbinServiceApp.ClearCasbin(0, auth.AuthorityId)
 	return err
 }

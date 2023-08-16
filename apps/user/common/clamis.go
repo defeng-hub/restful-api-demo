@@ -2,8 +2,8 @@ package common
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/infraboard/mcube/logger/zap"
 	uuid "github.com/satori/go.uuid"
+	"restful-api-demo/conf"
 
 	systemReq "restful-api-demo/apps/user/model/request"
 )
@@ -13,7 +13,7 @@ func GetClaims(c *gin.Context) (*systemReq.CustomClaims, error) {
 	j := NewJWT()
 	claims, err := j.ParseToken(token)
 	if err != nil {
-		zap.L().Named("User Claims").Error("从Gin的Context中获取从jwt解析信息失败, 请检查请求头是否存在x-token且claims是否为规定结构")
+		conf.L().Named("User Claims").Warn("从Gin的Context中获取从jwt解析信息失败, 请检查请求头是否存在x-token且claims是否为规定结构")
 	}
 	return claims, err
 }

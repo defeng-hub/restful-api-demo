@@ -1,8 +1,8 @@
 package impl
 
 import (
-	"github.com/infraboard/mcube/logger/zap"
 	"restful-api-demo/apps/host"
+	"restful-api-demo/common/logger/zap"
 	"restful-api-demo/conf"
 )
 

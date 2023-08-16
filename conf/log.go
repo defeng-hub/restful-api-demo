@@ -2,7 +2,7 @@ package conf
 
 import (
 	"fmt"
-	"github.com/infraboard/mcube/logger/zap"
+	"restful-api-demo/common/logger/zap"
 	"time"
 )
 
