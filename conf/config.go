@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/go-redis/redis"
 	"sync"
 	"time"
 
@@ -19,6 +20,7 @@ var (
 	config *Config
 	db     *sql.DB
 	gdb    *gorm.DB
+	rdb    *redis.Client
 )
 
 // C 想要从外部获取配置, 通过C获取config对象
@@ -33,9 +35,11 @@ func L() *zap.Logger {
 type Config struct {
 	App   *App   `toml:"app"`
 	MySQL *MySQL `toml:"mysql"`
+	Redis *Redis `toml:"redis"`
 	Log   *Log   `toml:"log"`
 	Jwt   *Jwt   `toml:"jwt"`
 }
+
 type Log struct {
 	Level  string    `toml:"level" env:"LOG_LEVEL"`
 	OutDir string    `toml:"out_dir" env:"LOG_PATH_DIR"`
@@ -89,13 +93,19 @@ func (m *MySQL) GetDB() (*sql.DB, error) {
 	return db, nil
 }
 func (m *MySQL) GetGormDB() (*gorm.DB, error) {
-	sqlDB, err := m.GetDB()
-	if err != nil {
-		return nil, err
+	m.lock.Lock()
+	defer m.lock.Unlock()
+	if gdb == nil {
+		// 加载gorm db
+		sqlDB, err := m.GetDB()
+		if err != nil {
+			return nil, err
+		}
+		gdb, err = gorm.Open(mysql.New(mysql.Config{
+			Conn: sqlDB,
+		}), &gorm.Config{})
+		return gdb, nil
 	}
-	gdb, err = gorm.Open(mysql.New(mysql.Config{
-		Conn: sqlDB,
-	}), &gorm.Config{})
 	return gdb, nil
 }
 
@@ -119,4 +129,43 @@ func (m *MySQL) getDBConn() (*sql.DB, error) {
 		return nil, fmt.Errorf("ping mysql<%s> error, %s", dsn, err.Error())
 	}
 	return db, nil
+}
+
+type Redis struct {
+	DB       int    `toml:"db" env:"REDIS_DB"`       // redis的哪个数据库
+	Addr     string `toml:"addr" env:"REDIS_ADDR"`   // 服务器地址:端口
+	Password string `toml:"password" env:"REDIS_PW"` // 密码
+	lock     sync.Mutex
+}
+
+func (r *Redis) initRedis() error {
+	client := redis.NewClient(&redis.Options{
+		Addr:     r.Addr,
+		Password: r.Password, // no password set
+		DB:       r.DB,       // use default DB
+	})
+	_, err := client.Ping().Result()
+	if err != nil {
+		rdb = nil
+		return fmt.Errorf("redis load fail:, err:%v", err)
+	} else {
+		rdb = client
+	}
+	return nil
+
+}
+
+func (r *Redis) GetRdb() (*redis.Client, error) {
+	r.lock.Lock()
+	defer r.lock.Unlock()
+	if rdb == nil {
+		err := r.initRedis()
+		if err != nil {
+			L().Named("Init").Errorf("redis load fail: %v", err)
+			return nil, err
+		}
+		return rdb, nil
+	} else {
+		return rdb, nil
+	}
 }

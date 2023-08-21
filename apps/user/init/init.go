@@ -9,11 +9,13 @@ import (
 type Init struct{}
 
 func (s *Init) Config() {
-	db, err := conf.C().MySQL.GetGormDB()
-	if err != nil {
+	if db, err := conf.C().MySQL.GetGormDB(); err != nil {
 		panic("user模块 初始化失败")
+	} else {
+		RegisterTables(db)
 	}
-	RegisterTables(db)
+
+	InitRedis()
 }
 func (s *Init) Name() string {
 	return user.AppName + "Init"
