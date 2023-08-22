@@ -12,6 +12,7 @@ func (s *Init) Config() {
 	if db, err := conf.C().MySQL.GetGormDB(); err != nil {
 		panic("user模块 初始化失败")
 	} else {
+		conf.L().Info(db)
 		RegisterTables(db)
 	}
 

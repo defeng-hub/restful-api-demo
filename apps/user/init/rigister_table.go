@@ -13,8 +13,8 @@ import (
 func RegisterTables(db *gorm.DB) {
 	err := db.AutoMigrate(
 		model.SysBaseMenu{},
-		model.SysAuthority{},
 		model.SysUser{},
+		model.SysAuthority{},
 	)
 	if err != nil {
 		zap.L().Named("User Init").Error("register table failed", zap.Error(err))

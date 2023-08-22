@@ -4,12 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/go-redis/redis"
 	"sync"
 	"time"
 
 	"restful-api-demo/common/logger/zap"
 
+	"github.com/go-redis/redis/v8"
 	_ "github.com/go-sql-driver/mysql" //mysql 驱动
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -92,9 +92,8 @@ func (m *MySQL) GetDB() (*sql.DB, error) {
 	}
 	return db, nil
 }
+
 func (m *MySQL) GetGormDB() (*gorm.DB, error) {
-	m.lock.Lock()
-	defer m.lock.Unlock()
 	if gdb == nil {
 		// 加载gorm db
 		sqlDB, err := m.GetDB()
@@ -144,7 +143,7 @@ func (r *Redis) initRedis() error {
 		Password: r.Password, // no password set
 		DB:       r.DB,       // use default DB
 	})
-	_, err := client.Ping().Result()
+	_, err := client.Ping(context.Background()).Result()
 	if err != nil {
 		rdb = nil
 		return fmt.Errorf("redis load fail:, err:%v", err)
