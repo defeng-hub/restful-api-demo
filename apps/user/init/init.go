@@ -13,7 +13,7 @@ func (s *Init) Config() {
 		panic("user模块 初始化失败")
 	} else {
 		conf.L().Info(db)
-		RegisterTables(db)
+		//RegisterTables(db)
 	}
 
 	InitRedis()

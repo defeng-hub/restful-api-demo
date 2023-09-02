@@ -13,8 +13,8 @@ import (
 	utils "restful-api-demo/apps/user/common"
 	"restful-api-demo/apps/user/common/request"
 	"restful-api-demo/apps/user/common/response"
-	systemReq "restful-api-demo/apps/user/model/request"
-	systemRes "restful-api-demo/apps/user/model/response"
+	modelReq "restful-api-demo/apps/user/model/request"
+	modelResp "restful-api-demo/apps/user/model/response"
 )
 
 type UserApi struct {
@@ -38,18 +38,28 @@ func generateRandomString(length int) string {
 // @Tags Base
 // @Summary 用户登录
 // @Produce  application/json
-// @Param data body systemReq.Login true "用户名, 密码, 验证码"
-// @Success 200 {object} response.Response{data=systemRes.LoginResponse,msg=string} "返回包括用户信息,token,过期时间"
+// @Param data body modelReq.Login true "用户名, 密码, 验证码"
+// @Success 200 {object} response.Response{data=modelResp.LoginResponse,msg=string} "返回包括用户信息,token,过期时间"
 // @Router /base/login [post]
 func (b *UserApi) Login(c *gin.Context) {
-	var l systemReq.Login
-	_ = c.ShouldBindJSON(&l)
-	if err := utils.Verify(l, utils.LoginVerify); err != nil {
+	var loginform struct {
+		Username string `json:"username"` // 用户名
+		Password string `json:"password"` // 密码
+	}
+
+	err := c.ShouldBindJSON(&loginform)
+	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
 
-	u := &model.SysUser{Username: l.Username, Password: l.Password}
+	rule := utils.Rules{"Username": {"required"}, "Password": {"required"}}
+	if err := utils.Verify(loginform, rule); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	u := &model.SysUser{Username: loginform.Username, Password: loginform.Password}
 	if err, user := b.Srv.Login(u); err != nil {
 		b.L.Error("登陆失败! 用户名不存在或者密码错误, error:", err)
 		response.FailWithMessage("用户名不存在或者密码错误", c)
@@ -61,7 +71,7 @@ func (b *UserApi) Login(c *gin.Context) {
 // 登录以后签发jwt
 func (b *UserApi) tokenNext(c *gin.Context, user model.SysUser) {
 	j := &utils.JWT{SigningKey: []byte(conf.C().Jwt.SigningKey)} // 唯一签名
-	claims := j.CreateClaims(systemReq.BaseClaims{
+	claims := j.CreateClaims(modelReq.BaseClaims{
 		UUID:        user.UUID,
 		ID:          user.ID,
 		NickName:    user.NickName,
@@ -75,7 +85,7 @@ func (b *UserApi) tokenNext(c *gin.Context, user model.SysUser) {
 		return
 	}
 
-	response.OkWithDetailed(systemRes.LoginResponse{
+	response.OkWithDetailed(modelResp.LoginResponse{
 		User:      user,
 		Token:     token,
 		ExpiresAt: claims.StandardClaims.ExpiresAt * 1000,
@@ -84,16 +94,16 @@ func (b *UserApi) tokenNext(c *gin.Context, user model.SysUser) {
 }
 
 // Register
-// @Tags SysUser
 // @Summary 用户注册账号
-// @Produce  application/json
-// @Param data body systemReq.Register true "用户名, 昵称, 密码, 角色ID"
-// @Success 200 {object} response.Response{data=systemRes.SysUserResponse,msg=string} "用户注册账号,返回包括用户信息"
-// @Router /user/register [post]
+// @Param data body modelReq.Register true "用户名, 昵称, 密码, 角色ID"
 func (b *UserApi) Register(c *gin.Context) {
-	var r systemReq.Register
+	var r modelReq.Register
 	_ = c.ShouldBindJSON(&r)
-	if err := utils.Verify(r, utils.RegisterVerify); err != nil {
+
+	rule := utils.Rules{"Username": {"required"}, "NickName": {"required"},
+		"Password": {"required"}, "AuthorityId": {"required"}}
+
+	if err := utils.Verify(r, rule); err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
@@ -103,27 +113,21 @@ func (b *UserApi) Register(c *gin.Context) {
 			AuthorityId: v,
 		})
 	}
-	user := &model.SysUser{Username: r.Username, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg,
+	user := model.SysUser{Username: r.Username, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg,
 		AuthorityId: r.AuthorityId, Authorities: authorities}
-	err, userReturn := b.Srv.Register(*user)
+	err, userReturn := b.Srv.Register(user)
 	if err != nil {
 		b.L.Error("注册失败!", zap.Error(err))
-		response.FailWithDetailed(systemRes.SysUserResponse{User: userReturn}, "注册失败", c)
+		response.FailWithDetailed(modelResp.SysUserResponse{User: nil}, "注册失败", c)
 	} else {
-		response.OkWithDetailed(systemRes.SysUserResponse{User: userReturn}, "注册成功", c)
+		response.OkWithDetailed(modelResp.SysUserResponse{User: userReturn}, "注册成功", c)
 	}
 }
 
-// ChangePassword
-// @Tags SysUser
 // @Summary 用户修改密码
-// @Security ApiKeyAuth
-// @Produce  application/json
-// @Param data body systemReq.ChangePasswordStruct true "用户名, 原密码, 新密码"
-// @Success 200 {object} response.Response{msg=string} "用户修改密码"
-// @Router /user/changePassword [post]
+// @Param data body modelReq.ChangePasswordStruct true "用户名, 原密码, 新密码"
 func (b *UserApi) ChangePassword(c *gin.Context) {
-	var user systemReq.ChangePasswordStruct
+	var user modelReq.ChangePasswordStruct
 	_ = c.ShouldBindJSON(&user)
 	if err := utils.Verify(user, utils.ChangePasswordVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)
@@ -173,11 +177,11 @@ func (b *UserApi) GetUserList(c *gin.Context) {
 // @Security ApiKeyAuth
 // @accept application/json
 // @Produce application/json
-// @Param data body systemReq.SetUserAuth true "用户UUID, 角色ID"
+// @Param data body modelReq.SetUserAuth true "用户UUID, 角色ID"
 // @Success 200 {object} response.Response{msg=string} "设置用户权限"
 // @Router /user/setUserAuthority [post]
 func (b *UserApi) SetUserAuthority(c *gin.Context) {
-	var sua systemReq.SetUserAuth
+	var sua modelReq.SetUserAuth
 	_ = c.ShouldBindJSON(&sua)
 	if UserVerifyErr := utils.Verify(sua, utils.SetUserAuthorityVerify); UserVerifyErr != nil {
 		response.FailWithMessage(UserVerifyErr.Error(), c)
@@ -210,11 +214,11 @@ func (b *UserApi) SetUserAuthority(c *gin.Context) {
 // @Security ApiKeyAuth
 // @accept application/json
 // @Produce application/json
-// @Param data body systemReq.SetUserAuthorities true "用户UUID, 角色ID"
+// @Param data body modelReq.SetUserAuthorities true "用户UUID, 角色ID"
 // @Success 200 {object} response.Response{msg=string} "设置用户权限"
 // @Router /user/setUserAuthorities [post]
 func (b *UserApi) SetUserAuthorities(c *gin.Context) {
-	var sua systemReq.SetUserAuthorities
+	var sua modelReq.SetUserAuthorities
 	_ = c.ShouldBindJSON(&sua)
 	if err := b.Srv.SetUserAuthorities(sua.ID, sua.AuthorityIds); err != nil {
 		b.L.Error("修改失败!", zap.Error(err))
@@ -277,18 +281,15 @@ func (b *UserApi) SetUserInfo(c *gin.Context) {
 	}
 }
 
-// SetSelfInfo
 // @Tags SysUser
 // @Summary 设置用户信息
-// @Security ApiKeyAuth
-// @accept application/json
-// @Produce application/json
-// @Param data body system.SysUser true "ID, 用户名, 昵称, 头像链接"
-// @Success 200 {object} response.Response{data=map[string]interface{},msg=string} "设置用户信息"
-// @Router /user/SetSelfInfo [put]
 func (b *UserApi) SetSelfInfo(c *gin.Context) {
 	var user model.SysUser
-	_ = c.ShouldBindJSON(&user)
+	err := c.ShouldBindJSON(&user)
+	if err != nil {
+		response.FailWithDetailed(err, "设置失败", c)
+	}
+
 	user.ID = utils.GetUserID(c)
 	if err, ReqUser := b.Srv.SetUserInfo(user); err != nil {
 		b.L.Error("设置失败!", zap.Error(err))
@@ -298,12 +299,8 @@ func (b *UserApi) SetSelfInfo(c *gin.Context) {
 	}
 }
 
-// GetUserInfo
-// @Security ApiKeyAuth
-// @accept application/json
-// @Produce application/json
+// @Summary 获取用户信息
 // @Success 200 {object} response.Response{data=map[string]interface{},msg=string} "获取用户信息"
-// @Router /user/getUserInfo [get]
 func (b *UserApi) GetUserInfo(c *gin.Context) {
 	uuid := utils.GetUserUuid(c)
 	if err, ReqUser := b.Srv.GetUserInfo(uuid); err != nil {

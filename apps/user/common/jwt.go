@@ -33,7 +33,7 @@ func (j *JWT) CreateClaims(baseClaims request.BaseClaims) request.CustomClaims {
 		StandardClaims: jwt.StandardClaims{
 			NotBefore: time.Now().Unix() - 1000,                     // 签名生效时间
 			ExpiresAt: time.Now().Unix() + conf.C().Jwt.ExpiresTime, // 过期时间 7天  配置文件
-			Issuer:    conf.C().Jwt.Issuer,                          // 签名的发行者
+			Issuer:    "admin",                                      // 签名的发行者
 		},
 	}
 	return claims

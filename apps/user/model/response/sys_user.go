@@ -3,7 +3,7 @@ package response
 import "restful-api-demo/apps/user/model"
 
 type SysUserResponse struct {
-	User model.SysUser `json:"user" comment:"用户信息"`
+	User *model.SysUser `json:"user" comment:"用户信息"`
 }
 
 type LoginResponse struct {

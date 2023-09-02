@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/casbin/casbin/v2"
 	"gorm.io/gorm"
+	"restful-api-demo/apps/user"
 	"restful-api-demo/apps/user/model"
 	"restful-api-demo/apps/user/model/request"
 	"restful-api-demo/conf"
@@ -17,7 +18,13 @@ type CasbinService struct {
 	db *gorm.DB
 }
 
-var CasbinServiceApp = new(CasbinService)
+// sys_casbin.go
+func (s *CasbinService) Name() string {
+	return user.AppName + ImplMap["sys_casbin"]
+}
+func (s *CasbinService) Config() {
+	s.db, _ = conf.C().MySQL.GetGormDB()
+}
 
 // UpdateCasbin
 //@description: 更新casbin权限

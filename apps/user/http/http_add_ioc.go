@@ -12,6 +12,7 @@ import (
 type Handler struct {
 	UserApi   api.UserApi
 	CasbinApi api.CasbinApi
+	MenuApi   api.AuthorityMenuApi
 }
 
 func (h *Handler) Name() string {
@@ -20,13 +21,18 @@ func (h *Handler) Name() string {
 
 func (h *Handler) Config() {
 	// 对各个API的  内部实现类进行初始化
-	// TODO:需要在这注册每一个app
 	h.UserApi = api.UserApi{
 		Srv: apps.GetImpl(new(UserService).Name()).(*UserService),
 		L:   zap.L().Named(new(UserService).Name()),
 	}
 
 	h.CasbinApi.Srv = apps.GetImpl(new(CasbinService).Name()).(*CasbinService)
+
+	h.MenuApi = api.AuthorityMenuApi{
+		Srv:     apps.GetImpl(new(MenuService).Name()).(*MenuService),
+		BaseSrv: apps.GetImpl(new(BaseMenuService).Name()).(*BaseMenuService),
+		L:       zap.L().Named(new(MenuService).Name()),
+	}
 }
 
 // Registry 注册路由

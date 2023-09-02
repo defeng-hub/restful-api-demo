@@ -3,7 +3,9 @@ package service
 import (
 	"errors"
 	"fmt"
+	"restful-api-demo/apps/user"
 	"restful-api-demo/common/logger"
+	"restful-api-demo/conf"
 
 	"restful-api-demo/apps/user/common/request"
 	"restful-api-demo/apps/user/model"
@@ -14,18 +16,21 @@ import (
 )
 
 // UserService
-//@author: [piexlmax](https://github.com/piexlmax)
-//@function: Register
-//@description: 用户注册
-//@param: u model.SysUser
-//@return: err error, userInter model.SysUser
 type UserService struct {
 	db *gorm.DB
 	l  logger.Logger
 }
 
-func (userService *UserService) Register(u model.SysUser) (err error, userInter model.SysUser) {
-	var user model.SysUser
+func (s *UserService) Config() {
+	s.db, _ = conf.C().MySQL.GetGormDB()
+	s.l = conf.L().Named(s.Name())
+}
+func (s *UserService) Name() string {
+	return user.AppName + ImplMap["sys_user"]
+}
+
+func (userService *UserService) Register(u model.SysUser) (err error, userInter *model.SysUser) {
+	var user *model.SysUser
 	if !errors.Is(userService.db.Where("username = ?", u.Username).First(&user).Error, gorm.ErrRecordNotFound) { // 判断用户名是否注册
 		return errors.New("用户名已注册"), userInter
 	}
@@ -33,7 +38,7 @@ func (userService *UserService) Register(u model.SysUser) (err error, userInter 
 	u.Password = utils.MD5V([]byte(u.Password))
 	u.UUID = uuid.NewV4()
 	err = userService.db.Create(&u).Error
-	return err, u
+	return err, &u
 }
 
 // Login

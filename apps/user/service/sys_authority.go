@@ -3,9 +3,12 @@ package service
 import (
 	"errors"
 	"gorm.io/gorm"
+	"restful-api-demo/apps"
+	"restful-api-demo/apps/user"
 	"restful-api-demo/apps/user/common/request"
 	"restful-api-demo/apps/user/model"
 	"restful-api-demo/apps/user/model/response"
+	"restful-api-demo/conf"
 	"strconv"
 )
 
@@ -16,15 +19,26 @@ import (
 //@return: err error, authority model.SysAuthority
 
 type AuthorityService struct {
-	db *gorm.DB
+	db        *gorm.DB
+	menuSrv   *MenuService
+	casbinSrv *CasbinService
 }
 
-func (authorityService *AuthorityService) CreateAuthority(auth model.SysAuthority) (err error, authority model.SysAuthority) {
+func (s *AuthorityService) Name() string {
+	return user.AppName + ImplMap["sys_authority"]
+}
+func (s *AuthorityService) Config() { // base_sys_menu.go
+	s.db, _ = conf.C().MySQL.GetGormDB()
+	s.menuSrv = apps.GetImpl(new(MenuService).Name()).(*MenuService)
+	s.casbinSrv = apps.GetImpl(new(CasbinService).Name()).(*CasbinService)
+}
+
+func (a *AuthorityService) CreateAuthority(auth model.SysAuthority) (err error, authority model.SysAuthority) {
 	var authorityBox model.SysAuthority
-	if !errors.Is(authorityService.db.Where("authority_id = ?", auth.AuthorityId).First(&authorityBox).Error, gorm.ErrRecordNotFound) {
+	if !errors.Is(a.db.Where("authority_id = ?", auth.AuthorityId).First(&authorityBox).Error, gorm.ErrRecordNotFound) {
 		return errors.New("存在相同角色id"), auth
 	}
-	err = authorityService.db.Create(&auth).Error
+	err = a.db.Create(&auth).Error
 	return err, auth
 }
 
@@ -34,13 +48,13 @@ func (authorityService *AuthorityService) CreateAuthority(auth model.SysAuthorit
 //@param: copyInfo response.SysAuthorityCopyResponse
 //@return: err error, authority model.SysAuthority
 
-func (authorityService *AuthorityService) CopyAuthority(copyInfo response.SysAuthorityCopyResponse) (err error, authority model.SysAuthority) {
+func (a *AuthorityService) CopyAuthority(copyInfo response.SysAuthorityCopyResponse) (err error, authority model.SysAuthority) {
 	var authorityBox model.SysAuthority
-	if !errors.Is(authorityService.db.Where("authority_id = ?", copyInfo.Authority.AuthorityId).First(&authorityBox).Error, gorm.ErrRecordNotFound) {
+	if !errors.Is(a.db.Where("authority_id = ?", copyInfo.Authority.AuthorityId).First(&authorityBox).Error, gorm.ErrRecordNotFound) {
 		return errors.New("存在相同角色id"), authority
 	}
 	copyInfo.Authority.Children = []model.SysAuthority{}
-	err, menus := MenuServiceApp.GetMenuAuthority(&request.GetAuthorityId{AuthorityId: copyInfo.OldAuthorityId})
+	err, menus := a.menuSrv.GetMenuAuthority(&request.GetAuthorityId{AuthorityId: copyInfo.OldAuthorityId})
 	if err != nil {
 		return
 	}
@@ -51,14 +65,14 @@ func (authorityService *AuthorityService) CopyAuthority(copyInfo response.SysAut
 		baseMenu = append(baseMenu, v.SysBaseMenu)
 	}
 	copyInfo.Authority.SysBaseMenus = baseMenu
-	err = authorityService.db.Create(&copyInfo.Authority).Error
+	err = a.db.Create(&copyInfo.Authority).Error
 	if err != nil {
 		return
 	}
-	paths := CasbinServiceApp.GetPolicyPathByAuthorityId(copyInfo.OldAuthorityId)
-	err = CasbinServiceApp.UpdateCasbin(copyInfo.Authority.AuthorityId, paths)
+	paths := a.casbinSrv.GetPolicyPathByAuthorityId(copyInfo.OldAuthorityId)
+	err = a.casbinSrv.UpdateCasbin(copyInfo.Authority.AuthorityId, paths)
 	if err != nil {
-		_ = authorityService.DeleteAuthority(&copyInfo.Authority)
+		_ = a.DeleteAuthority(&copyInfo.Authority)
 	}
 	return err, copyInfo.Authority
 }
@@ -69,8 +83,8 @@ func (authorityService *AuthorityService) CopyAuthority(copyInfo response.SysAut
 //@param: auth model.SysAuthority
 //@return: err error, authority model.SysAuthority
 
-func (authorityService *AuthorityService) UpdateAuthority(auth model.SysAuthority) (err error, authority model.SysAuthority) {
-	err = authorityService.db.Where("authority_id = ?", auth.AuthorityId).First(&model.SysAuthority{}).Updates(&auth).Error
+func (a *AuthorityService) UpdateAuthority(auth model.SysAuthority) (err error, authority model.SysAuthority) {
+	err = a.db.Where("authority_id = ?", auth.AuthorityId).First(&model.SysAuthority{}).Updates(&auth).Error
 	return err, auth
 }
 
@@ -80,26 +94,26 @@ func (authorityService *AuthorityService) UpdateAuthority(auth model.SysAuthorit
 //@param: auth *model.SysAuthority
 //@return: err error
 
-func (authorityService *AuthorityService) DeleteAuthority(auth *model.SysAuthority) (err error) {
-	if errors.Is(authorityService.db.Debug().Preload("Users").First(&auth).Error, gorm.ErrRecordNotFound) {
+func (a *AuthorityService) DeleteAuthority(auth *model.SysAuthority) (err error) {
+	if errors.Is(a.db.Debug().Preload("Users").First(&auth).Error, gorm.ErrRecordNotFound) {
 		return errors.New("该角色不存在")
 	}
 	if len(auth.Users) != 0 {
 		return errors.New("此角色有用户正在使用禁止删除")
 	}
-	if !errors.Is(authorityService.db.Where("authority_id = ?", auth.AuthorityId).First(&model.SysUser{}).Error, gorm.ErrRecordNotFound) {
+	if !errors.Is(a.db.Where("authority_id = ?", auth.AuthorityId).First(&model.SysUser{}).Error, gorm.ErrRecordNotFound) {
 		return errors.New("此角色有用户正在使用禁止删除")
 	}
-	if !errors.Is(authorityService.db.Where("parent_id = ?", auth.AuthorityId).First(&model.SysAuthority{}).Error, gorm.ErrRecordNotFound) {
+	if !errors.Is(a.db.Where("parent_id = ?", auth.AuthorityId).First(&model.SysAuthority{}).Error, gorm.ErrRecordNotFound) {
 		return errors.New("此角色存在子角色不允许删除")
 	}
-	db := authorityService.db.Preload("SysBaseMenus").Where("authority_id = ?", auth.AuthorityId).First(auth)
+	db := a.db.Preload("SysBaseMenus").Where("authority_id = ?", auth.AuthorityId).First(auth)
 	err = db.Unscoped().Delete(auth).Error
 	if err != nil {
 		return
 	}
 	if len(auth.SysBaseMenus) > 0 {
-		err = authorityService.db.Model(auth).Association("SysBaseMenus").Delete(auth.SysBaseMenus)
+		err = a.db.Model(auth).Association("SysBaseMenus").Delete(auth.SysBaseMenus)
 		if err != nil {
 			return
 		}
@@ -110,10 +124,10 @@ func (authorityService *AuthorityService) DeleteAuthority(auth *model.SysAuthori
 			return
 		}
 	}
-	err = authorityService.db.Delete(&[]model.SysUseAuthority{}, "sys_authority_authority_id = ?", auth.AuthorityId).Error
+	err = a.db.Delete(&[]model.SysUseAuthority{}, "sys_authority_authority_id = ?", auth.AuthorityId).Error
 
 	//清除 casbin权限
-	CasbinServiceApp.ClearCasbin(0, auth.AuthorityId)
+	a.casbinSrv.ClearCasbin(0, auth.AuthorityId)
 	return err
 }
 
@@ -123,16 +137,16 @@ func (authorityService *AuthorityService) DeleteAuthority(auth *model.SysAuthori
 //@param: info request.PageInfo
 //@return: err error, list interface{}, total int64
 
-func (authorityService *AuthorityService) GetAuthorityInfoList(info request.PageInfo) (err error, list interface{}, total int64) {
+func (a *AuthorityService) GetAuthorityInfoList(info request.PageInfo) (err error, list interface{}, total int64) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
-	db := authorityService.db.Model(&model.SysAuthority{})
+	db := a.db.Model(&model.SysAuthority{})
 	err = db.Where("parent_id = ?", "0").Count(&total).Error
 	var authority []model.SysAuthority
 	err = db.Limit(limit).Offset(offset).Preload("DataAuthorityId").Where("parent_id = ?", "0").Find(&authority).Error
 	if len(authority) > 0 {
 		for k := range authority {
-			err = authorityService.findChildrenAuthority(&authority[k])
+			err = a.findChildrenAuthority(&authority[k])
 		}
 	}
 	return err, authority, total
@@ -144,8 +158,8 @@ func (authorityService *AuthorityService) GetAuthorityInfoList(info request.Page
 //@param: auth model.SysAuthority
 //@return: err error, sa model.SysAuthority
 
-func (authorityService *AuthorityService) GetAuthorityInfo(auth model.SysAuthority) (err error, sa model.SysAuthority) {
-	err = authorityService.db.Preload("DataAuthorityId").Where("authority_id = ?", auth.AuthorityId).First(&sa).Error
+func (a *AuthorityService) GetAuthorityInfo(auth model.SysAuthority) (err error, sa model.SysAuthority) {
+	err = a.db.Preload("DataAuthorityId").Where("authority_id = ?", auth.AuthorityId).First(&sa).Error
 	return err, sa
 }
 
@@ -155,10 +169,10 @@ func (authorityService *AuthorityService) GetAuthorityInfo(auth model.SysAuthori
 //@param: auth model.SysAuthority
 //@return: error
 
-func (authorityService *AuthorityService) SetDataAuthority(auth model.SysAuthority) error {
+func (a *AuthorityService) SetDataAuthority(auth model.SysAuthority) error {
 	var s model.SysAuthority
-	authorityService.db.Preload("DataAuthorityId").First(&s, "authority_id = ?", auth.AuthorityId)
-	err := authorityService.db.Model(&s).Association("DataAuthorityId").Replace(&auth.DataAuthorityId)
+	a.db.Preload("DataAuthorityId").First(&s, "authority_id = ?", auth.AuthorityId)
+	err := a.db.Model(&s).Association("DataAuthorityId").Replace(&auth.DataAuthorityId)
 	return err
 }
 
@@ -168,10 +182,10 @@ func (authorityService *AuthorityService) SetDataAuthority(auth model.SysAuthori
 //@param: auth *model.SysAuthority
 //@return: error
 
-func (authorityService *AuthorityService) SetMenuAuthority(auth *model.SysAuthority) error {
+func (a *AuthorityService) SetMenuAuthority(auth *model.SysAuthority) error {
 	var s model.SysAuthority
-	authorityService.db.Preload("SysBaseMenus").First(&s, "authority_id = ?", auth.AuthorityId)
-	err := authorityService.db.Model(&s).Association("SysBaseMenus").Replace(&auth.SysBaseMenus)
+	a.db.Preload("SysBaseMenus").First(&s, "authority_id = ?", auth.AuthorityId)
+	err := a.db.Model(&s).Association("SysBaseMenus").Replace(&auth.SysBaseMenus)
 	return err
 }
 
@@ -181,11 +195,11 @@ func (authorityService *AuthorityService) SetMenuAuthority(auth *model.SysAuthor
 //@param: authority *model.SysAuthority
 //@return: err error
 
-func (authorityService *AuthorityService) findChildrenAuthority(authority *model.SysAuthority) (err error) {
-	err = authorityService.db.Preload("DataAuthorityId").Where("parent_id = ?", authority.AuthorityId).Find(&authority.Children).Error
+func (a *AuthorityService) findChildrenAuthority(authority *model.SysAuthority) (err error) {
+	err = a.db.Preload("DataAuthorityId").Where("parent_id = ?", authority.AuthorityId).Find(&authority.Children).Error
 	if len(authority.Children) > 0 {
 		for k := range authority.Children {
-			err = authorityService.findChildrenAuthority(&authority.Children[k])
+			err = a.findChildrenAuthority(&authority.Children[k])
 		}
 	}
 	return err

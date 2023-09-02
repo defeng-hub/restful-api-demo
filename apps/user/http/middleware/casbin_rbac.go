@@ -14,7 +14,12 @@ func CasbinHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//value, exists := c.Get("user")
 
-		waitUse, _ := common.GetClaims(c)
+		waitUse, err := common.GetClaims(c)
+		if err != nil {
+			response.FailWithDetailed(nil, "权限不足", c)
+			c.Abort()
+			return
+		}
 		// 获取请求的PATH
 		obj := c.Request.URL.Path
 		// 获取请求方法

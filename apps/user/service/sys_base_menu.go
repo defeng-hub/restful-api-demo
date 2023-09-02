@@ -2,13 +2,22 @@ package service
 
 import (
 	"errors"
+	"restful-api-demo/apps/user"
 	"restful-api-demo/apps/user/model"
+	"restful-api-demo/conf"
 
 	"gorm.io/gorm"
 )
 
 type BaseMenuService struct {
 	db *gorm.DB
+}
+
+func (s *BaseMenuService) Config() { // base_sys_menu.go
+	s.db, _ = conf.C().MySQL.GetGormDB()
+}
+func (s *BaseMenuService) Name() string {
+	return user.AppName + ImplMap["base_sys_menu"]
 }
 
 //@author: [piexlmax](https://github.com/piexlmax)

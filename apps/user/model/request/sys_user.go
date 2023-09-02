@@ -4,9 +4,9 @@ package request
 type Register struct {
 	Username     string   `json:"userName"`
 	Password     string   `json:"passWord"`
-	NickName     string   `json:"nickName" gorm:"default:'QMPlusUser'"`
+	NickName     string   `json:"nickName"`
 	HeaderImg    string   `json:"headerImg" gorm:"default:'https://qmplusimg.henrongyi.top/gva_header.jpg'"`
-	AuthorityId  string   `json:"authorityId" gorm:"default:888"`
+	AuthorityId  string   `json:"authorityId" gorm:"default:9528"`
 	AuthorityIds []string `json:"authorityIds"`
 }
 

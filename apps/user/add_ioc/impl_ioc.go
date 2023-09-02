@@ -9,9 +9,13 @@ import (
 var userService = new(svr.UserService)
 var menuService = new(svr.MenuService)
 var casbinService = new(svr.CasbinService)
+var baseMenuService = new(svr.BaseMenuService)
+var authorityService = new(svr.AuthorityService)
 
 func init() {
 	apps.RegistryApp(userService)
 	apps.RegistryApp(menuService)
 	apps.RegistryApp(casbinService)
+	apps.RegistryApp(baseMenuService)
+	apps.RegistryApp(authorityService)
 }
