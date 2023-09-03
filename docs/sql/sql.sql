@@ -1,4 +1,4 @@
--- 执行这个sql初始化数据库
+-- sql
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
@@ -18,7 +18,7 @@ CREATE TABLE `casbin_rule` (
   `v5` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_casbin_rule` (`ptype`,`v0`,`v1`,`v2`,`v3`,`v4`,`v5`)
-) ENGINE=InnoDB AUTO_INCREMENT=182 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=192 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of casbin_rule
@@ -69,7 +69,31 @@ INSERT INTO `casbin_rule` VALUES (173, 'p', '9528', '/UserService/Register', 'PO
 INSERT INTO `casbin_rule` VALUES (176, 'p', '9528', '/UserService/SetSelfInfo', 'PUT', '', '', '');
 INSERT INTO `casbin_rule` VALUES (179, 'p', '9528', '/UserService/SetUserAuthority', 'POST', '', '', '');
 INSERT INTO `casbin_rule` VALUES (175, 'p', '9528', '/UserService/SetUserInfo', 'PUT', '', '', '');
+INSERT INTO `casbin_rule` VALUES (191, 'p', '9999', '/MenuService/getBaseMenuTree', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (190, 'p', '9999', '/MenuService/getMenu', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (188, 'p', '9999', '/UserService/ChangePassword', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (187, 'p', '9999', '/UserService/GetUserInfo', 'GET', '', '', '');
+INSERT INTO `casbin_rule` VALUES (184, 'p', '9999', '/UserService/GetUserList', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (182, 'p', '9999', '/UserService/Login', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (183, 'p', '9999', '/UserService/Register', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (186, 'p', '9999', '/UserService/SetSelfInfo', 'PUT', '', '', '');
+INSERT INTO `casbin_rule` VALUES (189, 'p', '9999', '/UserService/SetUserAuthority', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (185, 'p', '9999', '/UserService/SetUserInfo', 'PUT', '', '', '');
 COMMIT;
+
+-- ----------------------------
+-- Table structure for jwt_blacklists
+-- ----------------------------
+DROP TABLE IF EXISTS `jwt_blacklists`;
+CREATE TABLE `jwt_blacklists` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `jwt` text COMMENT 'jwt',
+  PRIMARY KEY (`id`),
+  KEY `idx_jwt_blacklists_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=90 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Table structure for sys_apis
@@ -151,6 +175,7 @@ CREATE TABLE `sys_authorities` (
 BEGIN;
 INSERT INTO `sys_authorities` VALUES ('2023-07-09 11:55:51.229', '2023-09-03 16:22:47.105', NULL, '888', '管理员', '0', 'dashboard');
 INSERT INTO `sys_authorities` VALUES ('2023-07-09 11:55:51.229', '2023-09-03 18:53:28.575', NULL, '9528', '系统管理员', '0', 'dashboard');
+INSERT INTO `sys_authorities` VALUES ('2023-09-03 19:16:21.603', '2023-09-03 19:16:36.444', NULL, '9999', '普通学生', '0', 'dashboard');
 COMMIT;
 
 -- ----------------------------
@@ -169,7 +194,7 @@ CREATE TABLE `sys_authority_menus` (
 BEGIN;
 INSERT INTO `sys_authority_menus` VALUES (1, '888');
 INSERT INTO `sys_authority_menus` VALUES (1, '9528');
-INSERT INTO `sys_authority_menus` VALUES (2, '888');
+INSERT INTO `sys_authority_menus` VALUES (1, '9999');
 INSERT INTO `sys_authority_menus` VALUES (3, '888');
 INSERT INTO `sys_authority_menus` VALUES (4, '888');
 INSERT INTO `sys_authority_menus` VALUES (5, '888');
@@ -178,8 +203,10 @@ INSERT INTO `sys_authority_menus` VALUES (7, '888');
 INSERT INTO `sys_authority_menus` VALUES (8, '888');
 INSERT INTO `sys_authority_menus` VALUES (14, '888');
 INSERT INTO `sys_authority_menus` VALUES (14, '9528');
+INSERT INTO `sys_authority_menus` VALUES (14, '9999');
 INSERT INTO `sys_authority_menus` VALUES (17, '888');
 INSERT INTO `sys_authority_menus` VALUES (17, '9528');
+INSERT INTO `sys_authority_menus` VALUES (17, '9999');
 COMMIT;
 
 -- ----------------------------
@@ -229,7 +256,7 @@ CREATE TABLE `sys_base_menus` (
 -- ----------------------------
 BEGIN;
 INSERT INTO `sys_base_menus` VALUES (1, '2023-07-09 11:55:51.025', '2023-07-09 11:55:51.025', NULL, 0, '0', 'dashboard', 'dashboard', 0, 'view/dashboard/index.vue', 1, 0, 0, '仪表盘', 'odometer', 0);
-INSERT INTO `sys_base_menus` VALUES (2, '2023-07-09 11:55:51.025', '2023-07-09 11:55:51.025', NULL, 0, '0', 'about', 'about', 0, 'view/about/index.vue', 7, 0, 0, '关于我们', 'info-filled', 0);
+INSERT INTO `sys_base_menus` VALUES (2, '2023-07-09 11:55:51.025', '2023-07-09 11:55:51.025', '2023-09-03 19:19:49.653', 0, '0', 'about', 'about', 0, 'view/about/index.vue', 7, 0, 0, '关于我们', 'info-filled', 0);
 INSERT INTO `sys_base_menus` VALUES (3, '2023-07-09 11:55:51.025', '2023-07-09 11:55:51.025', NULL, 0, '0', 'admin', 'superAdmin', 0, 'view/superAdmin/index.vue', 3, 0, 0, '超级管理员', 'user', 0);
 INSERT INTO `sys_base_menus` VALUES (4, '2023-07-09 11:55:51.025', '2023-07-09 11:55:51.025', NULL, 0, '3', 'authority', 'authority', 0, 'view/superAdmin/authority/authority.vue', 1, 0, 0, '角色管理', 'avatar', 0);
 INSERT INTO `sys_base_menus` VALUES (5, '2023-07-09 11:55:51.025', '2023-07-09 11:55:51.025', NULL, 0, '3', 'menu', 'menu', 0, 'view/superAdmin/menu/menu.vue', 2, 1, 0, '菜单管理', 'tickets', 0);
@@ -261,6 +288,7 @@ BEGIN;
 INSERT INTO `sys_data_authority_id` VALUES ('888', '888');
 INSERT INTO `sys_data_authority_id` VALUES ('888', '9528');
 INSERT INTO `sys_data_authority_id` VALUES ('9528', '9528');
+INSERT INTO `sys_data_authority_id` VALUES ('9999', '9528');
 COMMIT;
 
 -- ----------------------------
@@ -319,6 +347,8 @@ INSERT INTO `sys_users` VALUES (9, '2023-09-02 16:25:48.644', '2023-09-03 19:01:
 INSERT INTO `sys_users` VALUES (10, '2023-09-02 16:26:06.420', '2023-09-03 19:01:57.783', NULL, 'cb437f40-2fa6-4643-bedc-ade904d8b464', 'wdfwdsa', 'd06d94c9b591a22a356dfc8afccbc303', 'wdfwds', 'dark', 'https://qmplusimg.henrongyi.top/gva_header.jpg', '#fff', '#1890ff', '888');
 COMMIT;
 
+
+-- 添加视图
 -- ----------------------------
 -- View structure for authority_menu
 -- ----------------------------

@@ -1,4 +1,4 @@
--- 执行这个sql初始化数据库
+-- sql
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
@@ -8,17 +8,17 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `casbin_rule`;
 CREATE TABLE `casbin_rule` (
-                               `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-                               `ptype` varchar(100) DEFAULT NULL,
-                               `v0` varchar(100) DEFAULT NULL,
-                               `v1` varchar(100) DEFAULT NULL,
-                               `v2` varchar(100) DEFAULT NULL,
-                               `v3` varchar(100) DEFAULT NULL,
-                               `v4` varchar(100) DEFAULT NULL,
-                               `v5` varchar(100) DEFAULT NULL,
-                               PRIMARY KEY (`id`),
-                               UNIQUE KEY `idx_casbin_rule` (`ptype`,`v0`,`v1`,`v2`,`v3`,`v4`,`v5`)
-) ENGINE=InnoDB AUTO_INCREMENT=182 DEFAULT CHARSET=utf8;
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `ptype` varchar(100) DEFAULT NULL,
+  `v0` varchar(100) DEFAULT NULL,
+  `v1` varchar(100) DEFAULT NULL,
+  `v2` varchar(100) DEFAULT NULL,
+  `v3` varchar(100) DEFAULT NULL,
+  `v4` varchar(100) DEFAULT NULL,
+  `v5` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_casbin_rule` (`ptype`,`v0`,`v1`,`v2`,`v3`,`v4`,`v5`)
+) ENGINE=InnoDB AUTO_INCREMENT=192 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of casbin_rule
@@ -69,23 +69,47 @@ INSERT INTO `casbin_rule` VALUES (173, 'p', '9528', '/UserService/Register', 'PO
 INSERT INTO `casbin_rule` VALUES (176, 'p', '9528', '/UserService/SetSelfInfo', 'PUT', '', '', '');
 INSERT INTO `casbin_rule` VALUES (179, 'p', '9528', '/UserService/SetUserAuthority', 'POST', '', '', '');
 INSERT INTO `casbin_rule` VALUES (175, 'p', '9528', '/UserService/SetUserInfo', 'PUT', '', '', '');
+INSERT INTO `casbin_rule` VALUES (191, 'p', '9999', '/MenuService/getBaseMenuTree', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (190, 'p', '9999', '/MenuService/getMenu', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (188, 'p', '9999', '/UserService/ChangePassword', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (187, 'p', '9999', '/UserService/GetUserInfo', 'GET', '', '', '');
+INSERT INTO `casbin_rule` VALUES (184, 'p', '9999', '/UserService/GetUserList', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (182, 'p', '9999', '/UserService/Login', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (183, 'p', '9999', '/UserService/Register', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (186, 'p', '9999', '/UserService/SetSelfInfo', 'PUT', '', '', '');
+INSERT INTO `casbin_rule` VALUES (189, 'p', '9999', '/UserService/SetUserAuthority', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (185, 'p', '9999', '/UserService/SetUserInfo', 'PUT', '', '', '');
 COMMIT;
+
+-- ----------------------------
+-- Table structure for jwt_blacklists
+-- ----------------------------
+DROP TABLE IF EXISTS `jwt_blacklists`;
+CREATE TABLE `jwt_blacklists` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `jwt` text COMMENT 'jwt',
+  PRIMARY KEY (`id`),
+  KEY `idx_jwt_blacklists_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=90 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Table structure for sys_apis
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_apis`;
 CREATE TABLE `sys_apis` (
-                            `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-                            `created_at` datetime(3) DEFAULT NULL,
-                            `updated_at` datetime(3) DEFAULT NULL,
-                            `deleted_at` datetime(3) DEFAULT NULL,
-                            `path` varchar(191) DEFAULT NULL COMMENT 'api路径',
-                            `description` varchar(191) DEFAULT NULL COMMENT 'api中文描述',
-                            `api_group` varchar(191) DEFAULT NULL COMMENT 'api组',
-                            `method` varchar(191) DEFAULT 'POST' COMMENT '方法',
-                            PRIMARY KEY (`id`),
-                            KEY `idx_sys_apis_deleted_at` (`deleted_at`)
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `path` varchar(191) DEFAULT NULL COMMENT 'api路径',
+  `description` varchar(191) DEFAULT NULL COMMENT 'api中文描述',
+  `api_group` varchar(191) DEFAULT NULL COMMENT 'api组',
+  `method` varchar(191) DEFAULT 'POST' COMMENT '方法',
+  PRIMARY KEY (`id`),
+  KEY `idx_sys_apis_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
@@ -134,15 +158,15 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_authorities`;
 CREATE TABLE `sys_authorities` (
-                                   `created_at` datetime(3) DEFAULT NULL,
-                                   `updated_at` datetime(3) DEFAULT NULL,
-                                   `deleted_at` datetime(3) DEFAULT NULL,
-                                   `authority_id` varchar(90) NOT NULL COMMENT '角色ID',
-                                   `authority_name` longtext COMMENT '角色名',
-                                   `parent_id` longtext COMMENT '父角色ID',
-                                   `default_router` varchar(191) DEFAULT 'dashboard' COMMENT '默认菜单',
-                                   PRIMARY KEY (`authority_id`),
-                                   UNIQUE KEY `authority_id` (`authority_id`)
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `authority_id` varchar(90) NOT NULL COMMENT '角色ID',
+  `authority_name` longtext COMMENT '角色名',
+  `parent_id` longtext COMMENT '父角色ID',
+  `default_router` varchar(191) DEFAULT 'dashboard' COMMENT '默认菜单',
+  PRIMARY KEY (`authority_id`),
+  UNIQUE KEY `authority_id` (`authority_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
@@ -151,6 +175,7 @@ CREATE TABLE `sys_authorities` (
 BEGIN;
 INSERT INTO `sys_authorities` VALUES ('2023-07-09 11:55:51.229', '2023-09-03 16:22:47.105', NULL, '888', '管理员', '0', 'dashboard');
 INSERT INTO `sys_authorities` VALUES ('2023-07-09 11:55:51.229', '2023-09-03 18:53:28.575', NULL, '9528', '系统管理员', '0', 'dashboard');
+INSERT INTO `sys_authorities` VALUES ('2023-09-03 19:16:21.603', '2023-09-03 19:16:36.444', NULL, '9999', '普通学生', '0', 'dashboard');
 COMMIT;
 
 -- ----------------------------
@@ -158,9 +183,9 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_authority_menus`;
 CREATE TABLE `sys_authority_menus` (
-                                       `sys_base_menu_id` bigint(20) unsigned NOT NULL DEFAULT '0',
-                                       `sys_authority_authority_id` varchar(90) NOT NULL COMMENT '角色ID',
-                                       PRIMARY KEY (`sys_base_menu_id`,`sys_authority_authority_id`)
+  `sys_base_menu_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `sys_authority_authority_id` varchar(90) NOT NULL COMMENT '角色ID',
+  PRIMARY KEY (`sys_base_menu_id`,`sys_authority_authority_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
@@ -169,7 +194,7 @@ CREATE TABLE `sys_authority_menus` (
 BEGIN;
 INSERT INTO `sys_authority_menus` VALUES (1, '888');
 INSERT INTO `sys_authority_menus` VALUES (1, '9528');
-INSERT INTO `sys_authority_menus` VALUES (2, '888');
+INSERT INTO `sys_authority_menus` VALUES (1, '9999');
 INSERT INTO `sys_authority_menus` VALUES (3, '888');
 INSERT INTO `sys_authority_menus` VALUES (4, '888');
 INSERT INTO `sys_authority_menus` VALUES (5, '888');
@@ -178,8 +203,10 @@ INSERT INTO `sys_authority_menus` VALUES (7, '888');
 INSERT INTO `sys_authority_menus` VALUES (8, '888');
 INSERT INTO `sys_authority_menus` VALUES (14, '888');
 INSERT INTO `sys_authority_menus` VALUES (14, '9528');
+INSERT INTO `sys_authority_menus` VALUES (14, '9999');
 INSERT INTO `sys_authority_menus` VALUES (17, '888');
 INSERT INTO `sys_authority_menus` VALUES (17, '9528');
+INSERT INTO `sys_authority_menus` VALUES (17, '9999');
 COMMIT;
 
 -- ----------------------------
@@ -187,16 +214,16 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_base_menu_parameters`;
 CREATE TABLE `sys_base_menu_parameters` (
-                                            `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-                                            `created_at` datetime(3) DEFAULT NULL,
-                                            `updated_at` datetime(3) DEFAULT NULL,
-                                            `deleted_at` datetime(3) DEFAULT NULL,
-                                            `sys_base_menu_id` bigint(20) unsigned DEFAULT NULL,
-                                            `type` varchar(191) DEFAULT NULL COMMENT '地址栏携带参数为params还是query',
-                                            `key` varchar(191) DEFAULT NULL COMMENT '地址栏携带参数的key',
-                                            `value` varchar(191) DEFAULT NULL COMMENT '地址栏携带参数的值',
-                                            PRIMARY KEY (`id`),
-                                            KEY `idx_sys_base_menu_parameters_deleted_at` (`deleted_at`)
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `sys_base_menu_id` bigint(20) unsigned DEFAULT NULL,
+  `type` varchar(191) DEFAULT NULL COMMENT '地址栏携带参数为params还是query',
+  `key` varchar(191) DEFAULT NULL COMMENT '地址栏携带参数的key',
+  `value` varchar(191) DEFAULT NULL COMMENT '地址栏携带参数的值',
+  PRIMARY KEY (`id`),
+  KEY `idx_sys_base_menu_parameters_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
@@ -204,24 +231,24 @@ CREATE TABLE `sys_base_menu_parameters` (
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_base_menus`;
 CREATE TABLE `sys_base_menus` (
-                                  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-                                  `created_at` datetime(3) DEFAULT NULL,
-                                  `updated_at` datetime(3) DEFAULT NULL,
-                                  `deleted_at` datetime(3) DEFAULT NULL,
-                                  `menu_level` bigint(20) unsigned DEFAULT NULL,
-                                  `parent_id` varchar(191) DEFAULT NULL COMMENT '父菜单ID',
-                                  `path` varchar(191) DEFAULT NULL COMMENT '路由path',
-                                  `name` varchar(191) DEFAULT NULL COMMENT '路由name',
-                                  `hidden` tinyint(1) DEFAULT NULL COMMENT '是否在列表隐藏',
-                                  `component` varchar(191) DEFAULT NULL COMMENT '对应前端文件路径',
-                                  `sort` bigint(20) DEFAULT NULL COMMENT '排序标记',
-                                  `keep_alive` tinyint(1) DEFAULT NULL COMMENT '附加属性',
-                                  `default_menu` tinyint(1) DEFAULT NULL COMMENT '附加属性',
-                                  `title` varchar(191) DEFAULT NULL COMMENT '附加属性',
-                                  `icon` varchar(191) DEFAULT NULL COMMENT '附加属性',
-                                  `close_tab` tinyint(1) DEFAULT NULL COMMENT '附加属性',
-                                  PRIMARY KEY (`id`),
-                                  KEY `idx_sys_base_menus_deleted_at` (`deleted_at`)
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `menu_level` bigint(20) unsigned DEFAULT NULL,
+  `parent_id` varchar(191) DEFAULT NULL COMMENT '父菜单ID',
+  `path` varchar(191) DEFAULT NULL COMMENT '路由path',
+  `name` varchar(191) DEFAULT NULL COMMENT '路由name',
+  `hidden` tinyint(1) DEFAULT NULL COMMENT '是否在列表隐藏',
+  `component` varchar(191) DEFAULT NULL COMMENT '对应前端文件路径',
+  `sort` bigint(20) DEFAULT NULL COMMENT '排序标记',
+  `keep_alive` tinyint(1) DEFAULT NULL COMMENT '附加属性',
+  `default_menu` tinyint(1) DEFAULT NULL COMMENT '附加属性',
+  `title` varchar(191) DEFAULT NULL COMMENT '附加属性',
+  `icon` varchar(191) DEFAULT NULL COMMENT '附加属性',
+  `close_tab` tinyint(1) DEFAULT NULL COMMENT '附加属性',
+  PRIMARY KEY (`id`),
+  KEY `idx_sys_base_menus_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
@@ -229,7 +256,7 @@ CREATE TABLE `sys_base_menus` (
 -- ----------------------------
 BEGIN;
 INSERT INTO `sys_base_menus` VALUES (1, '2023-07-09 11:55:51.025', '2023-07-09 11:55:51.025', NULL, 0, '0', 'dashboard', 'dashboard', 0, 'view/dashboard/index.vue', 1, 0, 0, '仪表盘', 'odometer', 0);
-INSERT INTO `sys_base_menus` VALUES (2, '2023-07-09 11:55:51.025', '2023-07-09 11:55:51.025', NULL, 0, '0', 'about', 'about', 0, 'view/about/index.vue', 7, 0, 0, '关于我们', 'info-filled', 0);
+INSERT INTO `sys_base_menus` VALUES (2, '2023-07-09 11:55:51.025', '2023-07-09 11:55:51.025', '2023-09-03 19:19:49.653', 0, '0', 'about', 'about', 0, 'view/about/index.vue', 7, 0, 0, '关于我们', 'info-filled', 0);
 INSERT INTO `sys_base_menus` VALUES (3, '2023-07-09 11:55:51.025', '2023-07-09 11:55:51.025', NULL, 0, '0', 'admin', 'superAdmin', 0, 'view/superAdmin/index.vue', 3, 0, 0, '超级管理员', 'user', 0);
 INSERT INTO `sys_base_menus` VALUES (4, '2023-07-09 11:55:51.025', '2023-07-09 11:55:51.025', NULL, 0, '3', 'authority', 'authority', 0, 'view/superAdmin/authority/authority.vue', 1, 0, 0, '角色管理', 'avatar', 0);
 INSERT INTO `sys_base_menus` VALUES (5, '2023-07-09 11:55:51.025', '2023-07-09 11:55:51.025', NULL, 0, '3', 'menu', 'menu', 0, 'view/superAdmin/menu/menu.vue', 2, 1, 0, '菜单管理', 'tickets', 0);
@@ -249,9 +276,9 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_data_authority_id`;
 CREATE TABLE `sys_data_authority_id` (
-                                         `sys_authority_authority_id` varchar(90) NOT NULL COMMENT '角色ID',
-                                         `data_authority_id_authority_id` varchar(90) NOT NULL COMMENT '角色ID',
-                                         PRIMARY KEY (`sys_authority_authority_id`,`data_authority_id_authority_id`)
+  `sys_authority_authority_id` varchar(90) NOT NULL COMMENT '角色ID',
+  `data_authority_id_authority_id` varchar(90) NOT NULL COMMENT '角色ID',
+  PRIMARY KEY (`sys_authority_authority_id`,`data_authority_id_authority_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
@@ -261,6 +288,7 @@ BEGIN;
 INSERT INTO `sys_data_authority_id` VALUES ('888', '888');
 INSERT INTO `sys_data_authority_id` VALUES ('888', '9528');
 INSERT INTO `sys_data_authority_id` VALUES ('9528', '9528');
+INSERT INTO `sys_data_authority_id` VALUES ('9999', '9528');
 COMMIT;
 
 -- ----------------------------
@@ -268,9 +296,9 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user_authority`;
 CREATE TABLE `sys_user_authority` (
-                                      `sys_user_id` bigint(20) unsigned NOT NULL DEFAULT '0',
-                                      `sys_authority_authority_id` varchar(90) NOT NULL COMMENT '角色ID',
-                                      PRIMARY KEY (`sys_user_id`,`sys_authority_authority_id`)
+  `sys_user_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `sys_authority_authority_id` varchar(90) NOT NULL COMMENT '角色ID',
+  PRIMARY KEY (`sys_user_id`,`sys_authority_authority_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
@@ -291,21 +319,21 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_users`;
 CREATE TABLE `sys_users` (
-                             `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-                             `created_at` datetime(3) DEFAULT NULL,
-                             `updated_at` datetime(3) DEFAULT NULL,
-                             `deleted_at` datetime(3) DEFAULT NULL,
-                             `uuid` longtext COMMENT '用户UUID',
-                             `username` longtext COMMENT '用户登录名',
-                             `password` longtext COMMENT '用户登录密码',
-                             `nick_name` varchar(191) DEFAULT '系统用户' COMMENT '用户昵称',
-                             `side_mode` varchar(191) DEFAULT 'dark' COMMENT '用户侧边主题',
-                             `header_img` varchar(191) DEFAULT 'https://qmplusimg.henrongyi.top/gva_header.jpg' COMMENT '用户头像',
-                             `base_color` varchar(191) DEFAULT '#fff' COMMENT '基础颜色',
-                             `active_color` varchar(191) DEFAULT '#1890ff' COMMENT '活跃颜色',
-                             `authority_id` varchar(191) DEFAULT '888' COMMENT '用户角色ID',
-                             PRIMARY KEY (`id`),
-                             KEY `idx_sys_users_deleted_at` (`deleted_at`)
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `uuid` longtext COMMENT '用户UUID',
+  `username` longtext COMMENT '用户登录名',
+  `password` longtext COMMENT '用户登录密码',
+  `nick_name` varchar(191) DEFAULT '系统用户' COMMENT '用户昵称',
+  `side_mode` varchar(191) DEFAULT 'dark' COMMENT '用户侧边主题',
+  `header_img` varchar(191) DEFAULT 'https://qmplusimg.henrongyi.top/gva_header.jpg' COMMENT '用户头像',
+  `base_color` varchar(191) DEFAULT '#fff' COMMENT '基础颜色',
+  `active_color` varchar(191) DEFAULT '#1890ff' COMMENT '活跃颜色',
+  `authority_id` varchar(191) DEFAULT '888' COMMENT '用户角色ID',
+  PRIMARY KEY (`id`),
+  KEY `idx_sys_users_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
@@ -319,6 +347,8 @@ INSERT INTO `sys_users` VALUES (9, '2023-09-02 16:25:48.644', '2023-09-03 19:01:
 INSERT INTO `sys_users` VALUES (10, '2023-09-02 16:26:06.420', '2023-09-03 19:01:57.783', NULL, 'cb437f40-2fa6-4643-bedc-ade904d8b464', 'wdfwdsa', 'd06d94c9b591a22a356dfc8afccbc303', 'wdfwds', 'dark', 'https://qmplusimg.henrongyi.top/gva_header.jpg', '#fff', '#1890ff', '888');
 COMMIT;
 
+
+-- 添加视图
 -- ----------------------------
 -- View structure for authority_menu
 -- ----------------------------

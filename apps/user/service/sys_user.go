@@ -1,11 +1,9 @@
 package service
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"restful-api-demo/apps/user"
-	userdb "restful-api-demo/apps/user/init"
 	"restful-api-demo/common/logger"
 	"restful-api-demo/conf"
 
@@ -221,10 +219,16 @@ func (userService *UserService) ResetPassword(ID uint) (err error) {
 	return err
 }
 
-func (userService *UserService) VerifyAllowLogin() bool {
-	// 会阻止登录
+func (userService *UserService) MultipointLogin(token string, username string) error {
+	jwtSrv := new(JwtService)
 
-	userdb.Rdb.LPush(context.Background(), "", "")
+	key := fmt.Sprintf("token-%s", username)
+	// token入库redis
+	if err := jwtSrv.SetRedisJWT(token, key); err != nil {
+		userService.l.Errorf("Redis写入token失败, username:%s,err:%s", username, err)
+	}
 
-	return true
+	//清除并拉黑多余token
+	err := jwtSrv.RemoveExcessToken(key, conf.C().Jwt.AllowNum)
+	return err
 }

@@ -79,19 +79,8 @@ func (b *UserApi) tokenNext(c *gin.Context, user model.SysUser) {
 		return
 	}
 
-	// token入库redis
-	//var jwt service.JwtService
-	//if err := jwt.SetRedisJWT(token, user.Username); err != nil {
-	//	b.L.Error("Redis写入token失败!", zap.Error(err))
-	//	response.FailWithMessage("获取token失败", c)
-	//	return
-	//}
-
-	//if !b.Srv.VerifyAllowLogin() {
-	//	b.L.Error("阻止登录!", zap.Error(err))
-	//	response.FailWithMessage("获取token失败", c)
-	//	return
-	//}
+	// 交给携程处理，单点登录 允许3个
+	go b.Srv.MultipointLogin(token, user.Username)
 
 	response.OkWithDetailed(modelResp.LoginResponse{
 		User:      user,
@@ -286,5 +275,16 @@ func (b *UserApi) ResetPassword(c *gin.Context) {
 		response.FailWithMessage("重置失败"+err.Error(), c)
 	} else {
 		response.OkWithMessage("重置成功", c)
+	}
+}
+
+// @Summary "jwt加入黑名单"
+func (b *UserApi) JsonInBlacklist(c *gin.Context) {
+	token := c.Request.Header.Get("x-token")
+	jwt := model.JwtBlacklist{Jwt: token}
+	if err := new(service.JwtService).JsonInBlacklist(jwt); err != nil {
+		response.FailWithMessage("jwt作废失败", c)
+	} else {
+		response.OkWithMessage("jwt作废成功", c)
 	}
 }

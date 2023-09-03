@@ -55,7 +55,7 @@ type Jwt struct {
 	SigningKey  string `toml:"signing_key"`  // jwt签名
 	ExpiresTime int64  `toml:"expires_time"` // 过期时间
 	BufferTime  int64  `toml:"buffer_time"`  // 缓冲时间
-	AllowNum    int    `toml:"allow_num"`    //最多允许在线设备数
+	AllowNum    int64  `toml:"allow_num"`    //最多允许在线设备数
 }
 
 type MySQL struct {

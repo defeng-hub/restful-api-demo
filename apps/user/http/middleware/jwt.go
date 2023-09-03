@@ -3,6 +3,7 @@ package middleware
 import (
 	"restful-api-demo/apps/user/common"
 	"restful-api-demo/apps/user/common/response"
+	"restful-api-demo/apps/user/service"
 	"restful-api-demo/conf"
 	"strconv"
 	"time"
@@ -16,6 +17,12 @@ func JWTAuth() gin.HandlerFunc {
 		token := c.Request.Header.Get("x-token")
 		if token == "" {
 			response.FailWithDetailed(gin.H{"reload": true}, "未登录或非法访问", c)
+			c.Abort()
+			return
+		}
+
+		if new(service.JwtService).IsBlacklist(token) {
+			response.FailWithDetailed(gin.H{"reload": true}, "您的帐户异地登陆或令牌失效", c)
 			c.Abort()
 			return
 		}

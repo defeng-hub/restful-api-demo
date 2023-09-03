@@ -20,6 +20,7 @@ func Router(h *Handler, r gin.IRouter) {
 		RouterUserApi.POST("Login", h.UserApi.Login)
 		RouterUserApi.POST("Register", h.UserApi.Register)             // 用户注册账号
 		RouterUserApi.POST("ChangePassword", h.UserApi.ChangePassword) // 用户修改密码
+		RouterUserApi.POST("Logout", h.UserApi.JsonInBlacklist)        // 设置用户信息
 
 		RouterCasbinUserApi.PUT("SetSelfInfo", h.UserApi.SetSelfInfo)                // 设置自身信息
 		RouterCasbinUserApi.GET("GetUserInfo", h.UserApi.GetUserInfo)                // 获取自身信息
