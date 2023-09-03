@@ -1,9 +1,11 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"restful-api-demo/apps/user"
+	userdb "restful-api-demo/apps/user/init"
 	"restful-api-demo/common/logger"
 	"restful-api-demo/conf"
 
@@ -41,10 +43,7 @@ func (userService *UserService) Register(u model.SysUser) (err error, userInter 
 	return err, &u
 }
 
-// Login
 //@description: 用户登录
-//@param: u *model.SysUser
-//@return: err error, userInter *model.SysUser
 func (userService *UserService) Login(u *model.SysUser) (err error, userInter *model.SysUser) {
 	if nil == userService.db {
 		return fmt.Errorf("db not init"), nil
@@ -220,4 +219,12 @@ func (userService *UserService) FindUserByUuid(uuid string) (err error, user *mo
 func (userService *UserService) ResetPassword(ID uint) (err error) {
 	err = userService.db.Model(&model.SysUser{}).Where("id = ?", ID).Update("password", utils.MD5V([]byte("123456"))).Error
 	return err
+}
+
+func (userService *UserService) VerifyAllowLogin() bool {
+	// 会阻止登录
+
+	userdb.Rdb.LPush(context.Background(), "", "")
+
+	return true
 }

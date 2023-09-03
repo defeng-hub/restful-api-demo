@@ -18,7 +18,6 @@ type CasbinService struct {
 	db *gorm.DB
 }
 
-// sys_casbin.go
 func (s *CasbinService) Name() string {
 	return user.AppName + ImplMap["sys_casbin"]
 }

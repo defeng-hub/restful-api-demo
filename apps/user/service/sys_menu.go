@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"restful-api-demo/apps"
 	"restful-api-demo/apps/user"
 	"restful-api-demo/conf"
 	"strconv"
@@ -18,11 +19,13 @@ import (
 //@return: err error, treeMap map[string][]model.SysMenu
 
 type MenuService struct {
-	db *gorm.DB
+	db      *gorm.DB
+	authSrv *AuthorityService
 }
 
 func (s *MenuService) Config() {
 	s.db, _ = conf.C().MySQL.GetGormDB()
+	s.authSrv = apps.GetImpl(new(AuthorityService).Name()).(*AuthorityService)
 }
 func (s *MenuService) Name() string {
 	return user.AppName + ImplMap["sys_menu"]
@@ -119,8 +122,7 @@ func (menuService *MenuService) AddMenuAuthority(menus []model.SysBaseMenu, auth
 	auth.AuthorityId = authorityId
 	auth.SysBaseMenus = menus
 
-	var AuthorityServiceApp = new(AuthorityService)
-	err = AuthorityServiceApp.SetMenuAuthority(&auth)
+	err = menuService.authSrv.SetMenuAuthority(&auth)
 	return err
 }
 
@@ -130,4 +132,82 @@ func (menuService *MenuService) GetMenuAuthority(info *request.GetAuthorityId) (
 	// sql := "SELECT authority_menu.keep_alive,authority_menu.default_menu,authority_menu.created_at,authority_menu.updated_at,authority_menu.deleted_at,authority_menu.menu_level,authority_menu.parent_id,authority_menu.path,authority_menu.`name`,authority_menu.hidden,authority_menu.component,authority_menu.title,authority_menu.icon,authority_menu.sort,authority_menu.menu_id,authority_menu.authority_id FROM authority_menu WHERE authority_menu.authority_id = ? ORDER BY authority_menu.sort ASC"
 	// err = menuService.db.Raw(sql, authorityId).Scan(&menus).Error
 	return err, menus
+}
+
+// 基础路由，基础路由，基础路由，基础路由
+
+//@description: 删除基础路由
+func (baseMenuService *MenuService) DeleteBaseMenu(id float64) (err error) {
+	err = baseMenuService.db.Preload("Parameters").Where("parent_id = ?", id).First(&model.SysBaseMenu{}).Error
+	if err != nil {
+		var menu model.SysBaseMenu
+		db := baseMenuService.db.Preload("SysAuthoritys").Where("id = ?", id).First(&menu).Delete(&menu)
+		err = baseMenuService.db.Delete(&model.SysBaseMenuParameter{}, "sys_base_menu_id = ?", id).Error
+		if err != nil {
+			return err
+		}
+		if len(menu.SysAuthoritys) > 0 {
+			err = baseMenuService.db.Model(&menu).Association("SysAuthoritys").Delete(&menu.SysAuthoritys)
+		} else {
+			err = db.Error
+			if err != nil {
+				return
+			}
+		}
+	} else {
+		return errors.New("此菜单存在子菜单不可删除")
+	}
+	return err
+}
+
+//@description: 更新路由
+func (baseMenuService *MenuService) UpdateBaseMenu(menu model.SysBaseMenu) (err error) {
+	var oldMenu model.SysBaseMenu
+	upDateMap := make(map[string]interface{})
+	upDateMap["keep_alive"] = menu.KeepAlive
+	upDateMap["close_tab"] = menu.CloseTab
+	upDateMap["default_menu"] = menu.DefaultMenu
+	upDateMap["parent_id"] = menu.ParentId
+	upDateMap["path"] = menu.Path
+	upDateMap["name"] = menu.Name
+	upDateMap["hidden"] = menu.Hidden
+	upDateMap["component"] = menu.Component
+	upDateMap["title"] = menu.Title
+	upDateMap["icon"] = menu.Icon
+	upDateMap["sort"] = menu.Sort
+
+	err = baseMenuService.db.Transaction(func(tx *gorm.DB) error {
+		db := tx.Where("id = ?", menu.ID).Find(&oldMenu)
+		if oldMenu.Name != menu.Name {
+			if !errors.Is(tx.Where("id <> ? AND name = ?", menu.ID, menu.Name).First(&model.SysBaseMenu{}).Error, gorm.ErrRecordNotFound) {
+				return errors.New("存在相同name修改失败")
+			}
+		}
+		txErr := tx.Unscoped().Delete(&model.SysBaseMenuParameter{}, "sys_base_menu_id = ?", menu.ID).Error
+		if txErr != nil {
+			return txErr
+		}
+		if len(menu.Parameters) > 0 {
+			for k := range menu.Parameters {
+				menu.Parameters[k].SysBaseMenuID = menu.ID
+			}
+			txErr = tx.Create(&menu.Parameters).Error
+			if txErr != nil {
+				return txErr
+			}
+		}
+
+		txErr = db.Updates(upDateMap).Error
+		if txErr != nil {
+			return txErr
+		}
+		return nil
+	})
+	return err
+}
+
+//@description: 返回当前选中menu
+func (baseMenuService *MenuService) GetBaseMenuById(id float64) (err error, menu model.SysBaseMenu) {
+	err = baseMenuService.db.Preload("Parameters").Where("id = ?", id).First(&menu).Error
+	return
 }

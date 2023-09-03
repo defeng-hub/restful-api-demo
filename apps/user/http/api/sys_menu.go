@@ -14,9 +14,8 @@ import (
 )
 
 type AuthorityMenuApi struct {
-	Srv     *service.MenuService
-	BaseSrv *service.BaseMenuService
-	L       logger.Logger
+	Srv *service.MenuService
+	L   logger.Logger
 }
 
 // @Tags AuthorityMenu
@@ -143,7 +142,7 @@ func (a *AuthorityMenuApi) DeleteBaseMenu(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	if err := a.BaseSrv.DeleteBaseMenu(menu.ID); err != nil {
+	if err := a.Srv.DeleteBaseMenu(menu.ID); err != nil {
 		a.L.Error("删除失败!", zap.Error(err))
 		response.FailWithMessage("删除失败", c)
 	} else {
@@ -170,7 +169,7 @@ func (a *AuthorityMenuApi) UpdateBaseMenu(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	if err := a.BaseSrv.UpdateBaseMenu(menu); err != nil {
+	if err := a.Srv.UpdateBaseMenu(menu); err != nil {
 		a.L.Error("更新失败!", zap.Error(err))
 		response.FailWithMessage("更新失败", c)
 	} else {
@@ -193,7 +192,7 @@ func (a *AuthorityMenuApi) GetBaseMenuById(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	if err, menu := a.BaseSrv.GetBaseMenuById(idInfo.ID); err != nil {
+	if err, menu := a.Srv.GetBaseMenuById(idInfo.ID); err != nil {
 		a.L.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)
 	} else {

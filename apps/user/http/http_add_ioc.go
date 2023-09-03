@@ -10,9 +10,11 @@ import (
 )
 
 type Handler struct {
-	UserApi   api.UserApi
-	CasbinApi api.CasbinApi
-	MenuApi   api.AuthorityMenuApi
+	UserApi      api.UserApi
+	CasbinApi    api.CasbinApi
+	MenuApi      api.AuthorityMenuApi
+	AuthorityApi api.AuthorityApi
+	SystemApiApi api.SystemApiApi
 }
 
 func (h *Handler) Name() string {
@@ -29,9 +31,17 @@ func (h *Handler) Config() {
 	h.CasbinApi.Srv = apps.GetImpl(new(CasbinService).Name()).(*CasbinService)
 
 	h.MenuApi = api.AuthorityMenuApi{
-		Srv:     apps.GetImpl(new(MenuService).Name()).(*MenuService),
-		BaseSrv: apps.GetImpl(new(BaseMenuService).Name()).(*BaseMenuService),
-		L:       zap.L().Named(new(MenuService).Name()),
+		Srv: apps.GetImpl(new(MenuService).Name()).(*MenuService),
+		L:   zap.L().Named(new(MenuService).Name()),
+	}
+
+	h.AuthorityApi = api.AuthorityApi{
+		Srv: apps.GetImpl(new(AuthorityService).Name()).(*AuthorityService),
+		L:   zap.L().Named(new(AuthorityService).Name()),
+	}
+	h.SystemApiApi = api.SystemApiApi{
+		Srv: apps.GetImpl(new(ApiService).Name()).(*ApiService),
+		L:   zap.L().Named(new(ApiService).Name()),
 	}
 }
 

@@ -20,7 +20,6 @@ var (
 	config *Config
 	db     *sql.DB
 	gdb    *gorm.DB
-	rdb    *redis.Client
 )
 
 // C 想要从外部获取配置, 通过C获取config对象
@@ -56,6 +55,7 @@ type Jwt struct {
 	SigningKey  string `toml:"signing_key"`  // jwt签名
 	ExpiresTime int64  `toml:"expires_time"` // 过期时间
 	BufferTime  int64  `toml:"buffer_time"`  // 缓冲时间
+	AllowNum    int    `toml:"allow_num"`    //最多允许在线设备数
 }
 
 type MySQL struct {
@@ -133,37 +133,27 @@ type Redis struct {
 	DB       int    `toml:"db" env:"REDIS_DB"`       // redis的哪个数据库
 	Addr     string `toml:"addr" env:"REDIS_ADDR"`   // 服务器地址:端口
 	Password string `toml:"password" env:"REDIS_PW"` // 密码
-	lock     sync.Mutex
 }
 
-func (r *Redis) initRedis() error {
+func (r *Redis) initRedis(db ...int) (*redis.Client, error) {
+	DB := r.DB
+	if len(db) > 0 {
+		DB = db[0]
+	}
 	client := redis.NewClient(&redis.Options{
 		Addr:     r.Addr,
-		Password: r.Password, // no password set
-		DB:       r.DB,       // use default DB
+		Password: r.Password,
+		DB:       DB,
 	})
 	_, err := client.Ping(context.Background()).Result()
 	if err != nil {
-		rdb = nil
-		return fmt.Errorf("redis load fail:, err:%v", err)
+		return nil, fmt.Errorf("redis load fail:, err:%v", err)
 	} else {
-		rdb = client
+		return client, nil
 	}
-	return nil
 
 }
 
-func (r *Redis) GetRdb() (*redis.Client, error) {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-	if rdb == nil {
-		err := r.initRedis()
-		if err != nil {
-			L().Named("Init").Errorf("redis load fail: %v", err)
-			return nil, err
-		}
-		return rdb, nil
-	} else {
-		return rdb, nil
-	}
+func (r *Redis) GetRdb(db ...int) (*redis.Client, error) {
+	return r.initRedis(db...)
 }

@@ -7,6 +7,7 @@ import (
 	"restful-api-demo/apps/user"
 	"restful-api-demo/apps/user/common/request"
 	"restful-api-demo/apps/user/model"
+	systemReq "restful-api-demo/apps/user/model/request"
 	"restful-api-demo/apps/user/model/response"
 	"restful-api-demo/conf"
 	"strconv"
@@ -33,12 +34,23 @@ func (s *AuthorityService) Config() { // base_sys_menu.go
 	s.casbinSrv = apps.GetImpl(new(CasbinService).Name()).(*CasbinService)
 }
 
-func (a *AuthorityService) CreateAuthority(auth model.SysAuthority) (err error, authority model.SysAuthority) {
+func (a *AuthorityService) CreateAuthority(auth *model.SysAuthority) (err error, authority *model.SysAuthority) {
 	var authorityBox model.SysAuthority
 	if !errors.Is(a.db.Where("authority_id = ?", auth.AuthorityId).First(&authorityBox).Error, gorm.ErrRecordNotFound) {
 		return errors.New("存在相同角色id"), auth
 	}
 	err = a.db.Create(&auth).Error
+	if err != nil {
+		return err, nil
+	}
+	err = a.menuSrv.AddMenuAuthority(systemReq.DefaultMenu(), authority.AuthorityId)
+	if err != nil {
+		return err, nil
+	}
+	err = a.casbinSrv.UpdateCasbin(authority.AuthorityId, systemReq.DefaultCasbin())
+	if err != nil {
+		return err, nil
+	}
 	return err, auth
 }
 
@@ -163,12 +175,7 @@ func (a *AuthorityService) GetAuthorityInfo(auth model.SysAuthority) (err error,
 	return err, sa
 }
 
-//@author: [piexlmax](https://github.com/piexlmax)
-//@function: SetDataAuthority
 //@description: 设置角色资源权限
-//@param: auth model.SysAuthority
-//@return: error
-
 func (a *AuthorityService) SetDataAuthority(auth model.SysAuthority) error {
 	var s model.SysAuthority
 	a.db.Preload("DataAuthorityId").First(&s, "authority_id = ?", auth.AuthorityId)
@@ -176,16 +183,15 @@ func (a *AuthorityService) SetDataAuthority(auth model.SysAuthority) error {
 	return err
 }
 
-//@author: [piexlmax](https://github.com/piexlmax)
-//@function: SetMenuAuthority
 //@description: 菜单与角色绑定
-//@param: auth *model.SysAuthority
-//@return: error
-
 func (a *AuthorityService) SetMenuAuthority(auth *model.SysAuthority) error {
 	var s model.SysAuthority
-	a.db.Preload("SysBaseMenus").First(&s, "authority_id = ?", auth.AuthorityId)
-	err := a.db.Model(&s).Association("SysBaseMenus").Replace(&auth.SysBaseMenus)
+	conf.L().Info(a.db)
+	err := a.db.Preload("SysBaseMenus").First(&s, "authority_id = ?", auth.AuthorityId).Error
+	if err != nil {
+		return err
+	}
+	err = a.db.Model(&s).Association("SysBaseMenus").Replace(&auth.SysBaseMenus)
 	return err
 }
 

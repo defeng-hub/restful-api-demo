@@ -1,11 +1,15 @@
 package init
 
-import "restful-api-demo/conf"
+import (
+	"github.com/go-redis/redis/v8"
+	"restful-api-demo/conf"
+)
 
-func InitRedis() {
-	_, err := conf.C().Redis.GetRdb()
+func InitRedis() (*redis.Client, error) {
+	rdb, err := conf.C().Redis.GetRdb()
 	if err != nil {
-		panic(err)
-		return
+		return nil, err
 	}
+
+	return rdb, nil
 }

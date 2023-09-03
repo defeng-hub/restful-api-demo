@@ -66,6 +66,7 @@ func GetImpl(name string) interface{} {
 			return v
 		}
 	}
+	panic("没找到Impl")
 	return nil
 }
 

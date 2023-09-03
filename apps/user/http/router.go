@@ -5,7 +5,10 @@ import (
 	"restful-api-demo/apps/user/http/middleware"
 )
 
-var Private = []gin.HandlerFunc{middleware.JWTAuth(), middleware.CasbinHandler(), middleware.OperationRecord()}
+//middleware.OperationRecord()
+var Private = []gin.HandlerFunc{middleware.JWTAuth(), middleware.CasbinHandler()}
+
+//var Private = []gin.HandlerFunc{}
 var Public = []gin.HandlerFunc{}
 
 func Router(h *Handler, r gin.IRouter) {
@@ -29,10 +32,37 @@ func Router(h *Handler, r gin.IRouter) {
 	}
 
 	//权限控制模块, 已完结
-	RouterCasbinApi := r.Group("CasbinService").Use(Public...) //todo:待改回私有
+	RouterCasbinApi := r.Group("CasbinService").Use(Private...) //todo:待改回私有
 	{
 		RouterCasbinApi.POST("GetPolicyPathByAuthorityId", h.CasbinApi.GetPolicyPathByAuthorityId)
 		RouterCasbinApi.POST("UpdateCasbin", h.CasbinApi.UpdateCasbin)
+	}
+
+	// 权限管理
+	authorityRouter := r.Group("AuthorityService").Use(Private...)
+	{
+		authorityRouter.POST("createAuthority", h.AuthorityApi.CreateAuthority)   // 创建角色
+		authorityRouter.POST("deleteAuthority", h.AuthorityApi.DeleteAuthority)   // 删除角色
+		authorityRouter.PUT("updateAuthority", h.AuthorityApi.UpdateAuthority)    // 更新角色
+		authorityRouter.POST("copyAuthority", h.AuthorityApi.CopyAuthority)       // 拷贝角色
+		authorityRouter.POST("setDataAuthority", h.AuthorityApi.SetDataAuthority) // 设置角色资源权限
+	}
+	{
+		authorityRouter.POST("getAuthorityList", h.AuthorityApi.GetAuthorityList) // 获取角色列表
+	}
+
+	// Api管理
+	apiRouter := r.Group("ApiService").Use(Private...)
+	{
+		apiRouter.POST("createApi", h.SystemApiApi.CreateApi)               // 创建Api
+		apiRouter.POST("deleteApi", h.SystemApiApi.DeleteApi)               // 删除Api
+		apiRouter.POST("getApiById", h.SystemApiApi.GetApiById)             // 获取单条Api消息
+		apiRouter.POST("updateApi", h.SystemApiApi.UpdateApi)               // 更新api
+		apiRouter.DELETE("deleteApisByIds", h.SystemApiApi.DeleteApisByIds) // 删除选中api
+	}
+	{
+		apiRouter.POST("getAllApis", h.SystemApiApi.GetAllApis) // 获取所有api
+		apiRouter.POST("getApiList", h.SystemApiApi.GetApiList) // 获取Api列表
 	}
 
 	// Menu 菜单管理
