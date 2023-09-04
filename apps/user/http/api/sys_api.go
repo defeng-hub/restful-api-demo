@@ -98,6 +98,10 @@ func (s *SystemApiApi) GetApiList(c *gin.Context) {
 	}
 }
 
+func (s *SystemApiApi) GetAllApiGroups(c *gin.Context) {
+	response.OkWithDetailed(s.Srv.GetAllApiGroups(), "获取成功", c)
+}
+
 // todo
 // @Tags SysApi
 // @Summary 根据id获取api

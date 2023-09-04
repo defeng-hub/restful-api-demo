@@ -62,8 +62,9 @@ func Router(h *Handler, r gin.IRouter) {
 		apiRouter.DELETE("deleteApisByIds", h.SystemApiApi.DeleteApisByIds) // 删除选中api
 	}
 	{
-		apiRouter.POST("getAllApis", h.SystemApiApi.GetAllApis) // 获取所有api
-		apiRouter.POST("getApiList", h.SystemApiApi.GetApiList) // 获取Api列表
+		apiRouter.POST("getAllApis", h.SystemApiApi.GetAllApis)          // 获取所有api
+		apiRouter.POST("getApiList", h.SystemApiApi.GetApiList)          // 获取Api列表
+		apiRouter.GET("getAllApiGroups", h.SystemApiApi.GetAllApiGroups) // 获取Api列表
 	}
 
 	// Menu 菜单管理

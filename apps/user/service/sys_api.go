@@ -109,6 +109,13 @@ func (apiService *ApiService) GetAPIInfoList(api model.SysApi, info request.Page
 //@description: 获取所有的api
 //@return: err error, apis []model.SysApi
 
+func (apiService *ApiService) GetAllApiGroups() []string {
+	sql := "select distinct api_group from sys_apis;"
+	var res []string
+	apiService.db.Raw(sql).Scan(&res)
+	return res
+}
+
 func (apiService *ApiService) GetAllApis() (err error, apis []model.SysApi) {
 	err = apiService.db.Find(&apis).Error
 	return
