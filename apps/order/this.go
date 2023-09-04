@@ -1,3 +1,3 @@
-package user
+package order
 
 const AppName = "Order"

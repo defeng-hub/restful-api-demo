@@ -13,7 +13,6 @@ import (
 	"strconv"
 )
 
-//@author: [piexlmax](https://github.com/piexlmax)
 //@function: CreateAuthority
 //@description: 创建一个角色
 //@param: auth model.SysAuthority
@@ -54,7 +53,6 @@ func (a *AuthorityService) CreateAuthority(auth *model.SysAuthority) (err error,
 	return err, auth
 }
 
-//@author: [piexlmax](https://github.com/piexlmax)
 //@function: CopyAuthority
 //@description: 复制一个角色
 //@param: copyInfo response.SysAuthorityCopyResponse
@@ -89,7 +87,6 @@ func (a *AuthorityService) CopyAuthority(copyInfo response.SysAuthorityCopyRespo
 	return err, copyInfo.Authority
 }
 
-//@author: [piexlmax](https://github.com/piexlmax)
 //@function: UpdateAuthority
 //@description: 更改一个角色
 //@param: auth model.SysAuthority
@@ -100,7 +97,6 @@ func (a *AuthorityService) UpdateAuthority(auth model.SysAuthority) (err error, 
 	return err, auth
 }
 
-//@author: [piexlmax](https://github.com/piexlmax)
 //@function: DeleteAuthority
 //@description: 删除角色
 //@param: auth *model.SysAuthority
@@ -143,7 +139,6 @@ func (a *AuthorityService) DeleteAuthority(auth *model.SysAuthority) (err error)
 	return err
 }
 
-//@author: [piexlmax](https://github.com/piexlmax)
 //@function: GetAuthorityInfoList
 //@description: 分页获取数据
 //@param: info request.PageInfo
@@ -164,7 +159,6 @@ func (a *AuthorityService) GetAuthorityInfoList(info request.PageInfo) (err erro
 	return err, authority, total
 }
 
-//@author: [piexlmax](https://github.com/piexlmax)
 //@function: GetAuthorityInfo
 //@description: 获取所有角色信息
 //@param: auth model.SysAuthority
@@ -195,7 +189,6 @@ func (a *AuthorityService) SetMenuAuthority(auth *model.SysAuthority) error {
 	return err
 }
 
-//@author: [piexlmax](https://github.com/piexlmax)
 //@function: findChildrenAuthority
 //@description: 查询子角色
 //@param: authority *model.SysAuthority

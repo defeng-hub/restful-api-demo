@@ -55,10 +55,7 @@ func (userService *UserService) Login(u *model.SysUser) (err error, userInter *m
 	return err, &user
 }
 
-// ChangePassword
 //@description: 修改用户密码
-//@param: u *model.SysUser, newPassword string
-//@return: err error, userInter *model.SysUser
 func (userService *UserService) ChangePassword(u *model.SysUser, newPassword string) (err error, userInter *model.SysUser) {
 	var user model.SysUser
 	u.Password = utils.MD5V([]byte(u.Password))
@@ -66,10 +63,7 @@ func (userService *UserService) ChangePassword(u *model.SysUser, newPassword str
 	return err, u
 }
 
-// GetUserInfoList
 //@description: 分页获取数据
-//@param: info request.PageInfo
-//@return: err error, list interface{}, total int64
 func (userService *UserService) GetUserInfoList(info request.PageInfo) (err error, list interface{}, total int64) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
@@ -83,12 +77,7 @@ func (userService *UserService) GetUserInfoList(info request.PageInfo) (err erro
 	return err, userList, total
 }
 
-//@author: [piexlmax](https://github.com/piexlmax)
-//@function: SetUserAuthority
 //@description: 设置一个用户的权限
-//@param: uuid uuid.UUID, authorityId string
-//@return: err error
-
 func (userService *UserService) SetUserAuthority(id uint, uuid uuid.UUID, authorityId string) (err error) {
 	assignErr := userService.db.Where("sys_user_id = ? AND sys_authority_authority_id = ?", id, authorityId).First(&model.SysUseAuthority{}).Error
 	if errors.Is(assignErr, gorm.ErrRecordNotFound) {
@@ -98,12 +87,7 @@ func (userService *UserService) SetUserAuthority(id uint, uuid uuid.UUID, author
 	return err
 }
 
-//@author: [piexlmax](https://github.com/piexlmax)
-//@function: SetUserAuthorities
 //@description: 设置一个用户的权限
-//@param: id uint, authorityIds []string
-//@return: err error
-
 func (userService *UserService) SetUserAuthorities(id uint, authorityIds []string) (err error) {
 	return userService.db.Transaction(func(tx *gorm.DB) error {
 		TxErr := tx.Delete(&[]model.SysUseAuthority{}, "sys_user_id = ?", id).Error
@@ -129,12 +113,7 @@ func (userService *UserService) SetUserAuthorities(id uint, authorityIds []strin
 	})
 }
 
-//@author: [piexlmax](https://github.com/piexlmax)
-//@function: DeleteUser
 //@description: 删除用户
-//@param: id float64
-//@return: err error
-
 func (userService *UserService) DeleteUser(id float64) (err error) {
 	var user model.SysUser
 	err = userService.db.Where("id = ?", id).Delete(&user).Error
@@ -145,23 +124,13 @@ func (userService *UserService) DeleteUser(id float64) (err error) {
 	return err
 }
 
-//@author: [piexlmax](https://github.com/piexlmax)
-//@function: SetUserInfo
 //@description: 设置用户信息
-//@param: reqUser model.SysUser
-//@return: err error, user model.SysUser
-
 func (userService *UserService) SetUserInfo(reqUser model.SysUser) (err error, user model.SysUser) {
 	err = userService.db.Updates(&reqUser).Error
 	return err, reqUser
 }
 
-//@author: [piexlmax](https://github.com/piexlmax)
-//@function: GetUserInfo
 //@description: 获取用户信息
-//@param: uuid uuid.UUID
-//@return: err error, user model.SysUser
-
 func (userService *UserService) GetUserInfo(uuid uuid.UUID) (err error, user model.SysUser) {
 	var reqUser model.SysUser
 	err = userService.db.Preload("Authorities").Preload("Authority").First(&reqUser, "uuid = ?", uuid).Error
@@ -176,12 +145,10 @@ func (userService *UserService) GetUserInfo(uuid uuid.UUID) (err error, user mod
 	return err, reqUser
 }
 
-//@author: [SliverHorn](https://github.com/SliverHorn)
 //@function: FindUserById
 //@description: 通过id获取用户信息
 //@param: id int
 //@return: err error, user *model.SysUser
-
 func (userService *UserService) FindUserById(id int) (err error, user *model.SysUser) {
 	var u model.SysUser
 	err = userService.db.Where("`id` = ?", id).First(&u).Error
@@ -194,12 +161,7 @@ func (userService *UserService) FindUserByUsername(name string) (err error, user
 	return err, &u
 }
 
-//@author: [SliverHorn](https://github.com/SliverHorn)
-//@function: FindUserByUuid
 //@description: 通过uuid获取用户信息
-//@param: uuid string
-//@return: err error, user *model.SysUser
-
 func (userService *UserService) FindUserByUuid(uuid string) (err error, user *model.SysUser) {
 	var u model.SysUser
 	if err = userService.db.Where("`uuid` = ?", uuid).First(&u).Error; err != nil {
@@ -208,12 +170,7 @@ func (userService *UserService) FindUserByUuid(uuid string) (err error, user *mo
 	return nil, &u
 }
 
-//@author: [piexlmax](https://github.com/piexlmax)
-//@function: resetPassword
 //@description: 修改用户密码
-//@param: ID uint
-//@return: err error
-
 func (userService *UserService) ResetPassword(ID uint) (err error) {
 	err = userService.db.Model(&model.SysUser{}).Where("id = ?", ID).Update("password", utils.MD5V([]byte("123456"))).Error
 	return err
