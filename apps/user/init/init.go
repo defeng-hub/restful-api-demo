@@ -47,7 +47,6 @@ func (s *Init) Config() {
 	for i := 0; i < len(data); i++ {
 		BlackCache.SetDefault(data[i], struct{}{})
 	}
-
 }
 func (s *Init) Name() string {
 	return user.AppName + "(Init)"
