@@ -1,4 +1,18 @@
--- sql
+/*
+ Navicat Premium Data Transfer
+
+ Source Server         : bysystem
+ Source Server Type    : MySQL
+ Source Server Version : 50740
+ Source Host           : 43.136.117.207:3306
+ Source Schema         : bysystem
+
+ Target Server Type    : MySQL
+ Target Server Version : 50740
+ File Encoding         : 65001
+
+ Date: 04/09/2023 19:04:04
+*/
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
@@ -18,47 +32,48 @@ CREATE TABLE `casbin_rule` (
   `v5` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_casbin_rule` (`ptype`,`v0`,`v1`,`v2`,`v3`,`v4`,`v5`)
-) ENGINE=InnoDB AUTO_INCREMENT=192 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=228 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of casbin_rule
 -- ----------------------------
 BEGIN;
-INSERT INTO `casbin_rule` VALUES (140, 'p', '888', '/ApiService/createApi', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (141, 'p', '888', '/ApiService/deleteApi', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (146, 'p', '888', '/ApiService/deleteApisByIds', 'DELETE', '', '', '');
-INSERT INTO `casbin_rule` VALUES (144, 'p', '888', '/ApiService/getAllApis', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (145, 'p', '888', '/ApiService/getApiById', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (143, 'p', '888', '/ApiService/getApiList', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (142, 'p', '888', '/ApiService/updateApi', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (147, 'p', '888', '/AuthorityService/copyAuthority', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (148, 'p', '888', '/AuthorityService/createAuthority', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (149, 'p', '888', '/AuthorityService/deleteAuthority', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (151, 'p', '888', '/AuthorityService/getAuthorityList', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (152, 'p', '888', '/AuthorityService/setDataAuthority', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (150, 'p', '888', '/AuthorityService/updateAuthority', 'PUT', '', '', '');
-INSERT INTO `casbin_rule` VALUES (154, 'p', '888', '/CasbinService/GetPolicyPathByAuthorityId', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (153, 'p', '888', '/CasbinService/UpdateCasbin', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (155, 'p', '888', '/MenuService/addBaseMenu', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (163, 'p', '888', '/MenuService/addMenuAuthority', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (157, 'p', '888', '/MenuService/deleteBaseMenu', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (159, 'p', '888', '/MenuService/getBaseMenuById', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (161, 'p', '888', '/MenuService/getBaseMenuTree', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (156, 'p', '888', '/MenuService/getMenu', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (162, 'p', '888', '/MenuService/getMenuAuthority', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (160, 'p', '888', '/MenuService/getMenuList', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (158, 'p', '888', '/MenuService/updateBaseMenu', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (137, 'p', '888', '/UserService/ChangePassword', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (130, 'p', '888', '/UserService/DeleteUser', 'DELETE', '', '', '');
-INSERT INTO `casbin_rule` VALUES (135, 'p', '888', '/UserService/GetUserInfo', 'GET', '', '', '');
-INSERT INTO `casbin_rule` VALUES (132, 'p', '888', '/UserService/GetUserList', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (129, 'p', '888', '/UserService/Login', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (131, 'p', '888', '/UserService/Register', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (139, 'p', '888', '/UserService/ResetPassword', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (134, 'p', '888', '/UserService/SetSelfInfo', 'PUT', '', '', '');
-INSERT INTO `casbin_rule` VALUES (136, 'p', '888', '/UserService/SetUserAuthorities', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (138, 'p', '888', '/UserService/SetUserAuthority', 'POST', '', '', '');
-INSERT INTO `casbin_rule` VALUES (133, 'p', '888', '/UserService/SetUserInfo', 'PUT', '', '', '');
+INSERT INTO `casbin_rule` VALUES (203, 'p', '888', '/ApiService/createApi', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (204, 'p', '888', '/ApiService/deleteApi', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (209, 'p', '888', '/ApiService/deleteApisByIds', 'DELETE', '', '', '');
+INSERT INTO `casbin_rule` VALUES (210, 'p', '888', '/ApiService/getAllApiGroups', 'GET', '', '', '');
+INSERT INTO `casbin_rule` VALUES (207, 'p', '888', '/ApiService/getAllApis', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (208, 'p', '888', '/ApiService/getApiById', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (206, 'p', '888', '/ApiService/getApiList', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (205, 'p', '888', '/ApiService/updateApi', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (211, 'p', '888', '/AuthorityService/copyAuthority', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (212, 'p', '888', '/AuthorityService/createAuthority', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (213, 'p', '888', '/AuthorityService/deleteAuthority', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (215, 'p', '888', '/AuthorityService/getAuthorityList', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (216, 'p', '888', '/AuthorityService/setDataAuthority', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (214, 'p', '888', '/AuthorityService/updateAuthority', 'PUT', '', '', '');
+INSERT INTO `casbin_rule` VALUES (218, 'p', '888', '/CasbinService/GetPolicyPathByAuthorityId', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (217, 'p', '888', '/CasbinService/UpdateCasbin', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (219, 'p', '888', '/MenuService/addBaseMenu', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (227, 'p', '888', '/MenuService/addMenuAuthority', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (221, 'p', '888', '/MenuService/deleteBaseMenu', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (223, 'p', '888', '/MenuService/getBaseMenuById', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (225, 'p', '888', '/MenuService/getBaseMenuTree', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (220, 'p', '888', '/MenuService/getMenu', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (226, 'p', '888', '/MenuService/getMenuAuthority', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (224, 'p', '888', '/MenuService/getMenuList', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (222, 'p', '888', '/MenuService/updateBaseMenu', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (200, 'p', '888', '/UserService/ChangePassword', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (193, 'p', '888', '/UserService/DeleteUser', 'DELETE', '', '', '');
+INSERT INTO `casbin_rule` VALUES (198, 'p', '888', '/UserService/GetUserInfo', 'GET', '', '', '');
+INSERT INTO `casbin_rule` VALUES (195, 'p', '888', '/UserService/GetUserList', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (192, 'p', '888', '/UserService/Login', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (194, 'p', '888', '/UserService/Register', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (202, 'p', '888', '/UserService/ResetPassword', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (197, 'p', '888', '/UserService/SetSelfInfo', 'PUT', '', '', '');
+INSERT INTO `casbin_rule` VALUES (199, 'p', '888', '/UserService/SetUserAuthorities', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (201, 'p', '888', '/UserService/SetUserAuthority', 'POST', '', '', '');
+INSERT INTO `casbin_rule` VALUES (196, 'p', '888', '/UserService/SetUserInfo', 'PUT', '', '', '');
 INSERT INTO `casbin_rule` VALUES (181, 'p', '9528', '/MenuService/getBaseMenuTree', 'POST', '', '', '');
 INSERT INTO `casbin_rule` VALUES (180, 'p', '9528', '/MenuService/getMenu', 'POST', '', '', '');
 INSERT INTO `casbin_rule` VALUES (178, 'p', '9528', '/UserService/ChangePassword', 'POST', '', '', '');
@@ -110,7 +125,7 @@ CREATE TABLE `sys_apis` (
   `method` varchar(191) DEFAULT 'POST' COMMENT '方法',
   PRIMARY KEY (`id`),
   KEY `idx_sys_apis_deleted_at` (`deleted_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Records of sys_apis
@@ -151,6 +166,7 @@ INSERT INTO `sys_apis` VALUES (33, '2023-07-09 11:55:50.339', '2023-07-09 11:55:
 INSERT INTO `sys_apis` VALUES (34, '2023-07-09 11:55:50.339', '2023-07-09 11:55:50.339', NULL, '/MenuService/getBaseMenuTree', '获取用户动态路由', '菜单', 'POST');
 INSERT INTO `sys_apis` VALUES (35, '2023-07-09 11:55:50.339', '2023-07-09 11:55:50.339', NULL, '/MenuService/getMenuAuthority', '获取指定角色menu', '菜单', 'POST');
 INSERT INTO `sys_apis` VALUES (36, '2023-07-09 11:55:50.339', '2023-07-09 11:55:50.339', NULL, '/MenuService/addMenuAuthority', '增加menu和角色关联关系', '菜单', 'POST');
+INSERT INTO `sys_apis` VALUES (85, '2023-09-04 13:55:47.293', '2023-09-04 13:55:47.293', NULL, '/ApiService/getAllApiGroups', '获取api的全部分组', 'api', 'GET');
 COMMIT;
 
 -- ----------------------------
@@ -340,15 +356,13 @@ CREATE TABLE `sys_users` (
 -- Records of sys_users
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_users` VALUES (1, '2023-07-09 11:55:50.575', '2023-09-03 18:56:44.581', NULL, '9b9b9ab7-1639-4c9f-8ebc-b0ab21f1f30c', 'admin', 'e10adc3949ba59abbe56e057f20f883e', '用户12', 'dark', 'https://qmplusimg.henrongyi.top/gva_header.jpg', '#fff', '#1890ff', '888');
+INSERT INTO `sys_users` VALUES (1, '2023-07-09 11:55:50.575', '2023-09-04 13:40:22.480', NULL, '9b9b9ab7-1639-4c9f-8ebc-b0ab21f1f30c', 'admin', 'e10adc3949ba59abbe56e057f20f883e', '用户12', 'dark', 'https://qmplusimg.henrongyi.top/gva_header.jpg', '#fff', '#1890ff', '888');
 INSERT INTO `sys_users` VALUES (2, '2023-07-09 11:55:50.575', '2023-07-11 16:15:46.680', NULL, 'c2d280d6-b222-4a33-8dde-4f948b8b3dc4', 'a303176530', 'e10adc3949ba59abbe56e057f20f883e', 'QMPlusUser', 'dark', 'https:///qmplusimg.henrongyi.top/1572075907logo.png', '#fff', '#1890ff', '888');
 INSERT INTO `sys_users` VALUES (3, '2023-07-11 17:10:08.376', '2023-07-17 11:11:55.995', NULL, '27b808ac-365e-498b-8148-57b4b347d2ac', '125554566', 'e10adc3949ba59abbe56e057f20f883e', 'wdf', 'dark', 'https://qmplusimg.henrongyi.top/gva_header.jpg', '#fff', '#1890ff', '888');
 INSERT INTO `sys_users` VALUES (9, '2023-09-02 16:25:48.644', '2023-09-03 19:01:47.917', NULL, '511bcbae-20cd-411b-9bbd-871024b3b7a9', 'wdfwds', '4124bc0a9335c27f086f24ba207a4912', 'wdfwds', 'dark', 'https://qmplusimg.henrongyi.top/gva_header.jpg', '#fff', '#1890ff', '888');
 INSERT INTO `sys_users` VALUES (10, '2023-09-02 16:26:06.420', '2023-09-03 19:01:57.783', NULL, 'cb437f40-2fa6-4643-bedc-ade904d8b464', 'wdfwdsa', 'd06d94c9b591a22a356dfc8afccbc303', 'wdfwds', 'dark', 'https://qmplusimg.henrongyi.top/gva_header.jpg', '#fff', '#1890ff', '888');
 COMMIT;
 
-
--- 添加视图
 -- ----------------------------
 -- View structure for authority_menu
 -- ----------------------------

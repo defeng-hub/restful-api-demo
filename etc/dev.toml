@@ -8,7 +8,7 @@ key  = "this is your app key"
 host = "xxx"
 port = "3306"
 username = "bysystem"
-password = "bysystem125554566"
+password = ""
 database = "bysystem"
 max_open_conn = 5
 max_idle_conn = 3
@@ -16,7 +16,7 @@ max_idle_conn = 3
 [redis]
 db = 0
 addr = "xxx:6379"
-password = "125554566"
+password = ""
 
 [log]
 # Level
@@ -31,3 +31,4 @@ to = "studio" # To: file, studio
 buffer_time = 86400
 expires_time = 604800
 signing_key = "4c9b2c48-df35-4e54-ba0c-d304906e9e3a"
+allow_num = 3

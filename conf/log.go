@@ -42,7 +42,7 @@ func LoadGlobalLogger() error {
 		level = zap.InfoLevel
 	} else {
 		level = lv
-		logInitMsg = fmt.Sprintf("log level: %s", lv)
+		logInitMsg = fmt.Sprintf("Logger级别: %s", lv)
 	}
 
 	// 使用默认配置, 设置日志级别

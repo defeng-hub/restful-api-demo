@@ -29,7 +29,7 @@ func (s *Init) Config() {
 		panic("user模块 Redis初始化失败")
 		return
 	} else {
-		conf.L().Infof("UserApp Redis:%s 加载成功...", Rdb)
+		conf.L().Named("INIT").Infof("UserApp Redis:%s 加载成功...", Rdb)
 	}
 
 	// 初始化黑名单Cache
