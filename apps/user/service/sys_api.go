@@ -104,7 +104,7 @@ func (apiService *ApiService) GetAPIInfoList(api model.SysApi, info request.Page
 //@description: 获取所有的api
 //@return: err error, apis []model.SysApi
 func (apiService *ApiService) GetAllApiGroups() []string {
-	sql := "select distinct api_group from sys_apis;"
+	sql := "select distinct api_group from sys_apis where deleted_at is NULL;"
 	var res []string
 	apiService.db.Raw(sql).Scan(&res)
 	return res

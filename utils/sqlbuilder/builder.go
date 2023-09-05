@@ -18,7 +18,6 @@ func NewBuilder(querySQL string, args ...interface{}) *Builder {
 		whereStmt: []string{},
 		whereArgs: []interface{}{},
 		limitArgs: []interface{}{},
-		order:     []string{},
 	}
 }
 
@@ -32,10 +31,10 @@ type Builder struct {
 	whereArgs  []interface{}
 	limitStmt  string
 	limitArgs  []interface{}
-	order      []string
 	groupBy    string
 	havingStmt []string
 	havingArgs []interface{}
+	orderBy    string
 }
 
 // Where 添加参数
@@ -74,15 +73,20 @@ func (b *Builder) WithHaving(stmts []string, args []interface{}) *Builder {
 }
 
 // Limit Limit
-func (b *Builder) Limit(offset int64, limit uint) *Builder {
+func (b *Builder) Limit(offset int64, limit int64) *Builder {
 	b.limitStmt = "LIMIT ?,? "
 	b.limitArgs = append(b.limitArgs, offset, limit)
 	return b
 }
 
-// Order todo
-func (b *Builder) Order(d string) *OrderStmt {
-	return b.orderStmt(fmt.Sprintf("ORDER BY %s", d))
+// OrderBy {Order By num,price DESC}
+func (b *Builder) OrderBy(d string, Desc bool) *Builder {
+	if Desc {
+		b.orderBy = fmt.Sprintf("ORDER BY %s Desc ", strings.TrimSpace(d))
+	} else {
+		b.orderBy = fmt.Sprintf("ORDER BY %s ", strings.TrimSpace(d))
+	}
+	return b
 }
 
 // LeftJoin("xxxx").ON("xxx")
@@ -147,7 +151,7 @@ func (b *Builder) HavingStmt() []string {
 
 // Build 组件SQL
 func (b *Builder) Build() (stmt string, args []interface{}) {
-	stmt = b.base + " " + b.joinBuild() + b.setBuild() + b.whereBuild() + b.groupBy + b.havingBuild() + b.orderBuild() + b.limitStmt + ";"
+	stmt = b.base + " " + b.joinBuild() + b.setBuild() + b.whereBuild() + b.groupBy + b.havingBuild() + b.orderBy + b.limitStmt + ";"
 
 	args = append(args, b.setArgs...)
 	args = append(args, b.whereArgs...)
@@ -187,16 +191,5 @@ func (b *Builder) joinStmt(joinSQL string) *JoinStmt {
 	return &JoinStmt{
 		join: joinSQL,
 		b:    b,
-	}
-}
-
-func (b *Builder) orderBuild() string {
-	return strings.Join(b.order, ",") + " "
-}
-
-func (b *Builder) orderStmt(orderSQL string) *OrderStmt {
-	return &OrderStmt{
-		order: orderSQL,
-		b:     b,
 	}
 }

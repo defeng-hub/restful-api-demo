@@ -128,7 +128,7 @@ func (s *MysqlServiceImpl) QueryHost(ctx context.Context, req *host.QueryHostReq
 			"%"+req.Keywords+"%",
 		)
 	}
-	b.Limit(req.OffSet(), uint(req.PageSize))
+	b.Limit(req.OffSet(), int64(req.PageSize))
 	querySQL, args := b.Build()
 	s.l.Infof("生成的sql和参数:%s, args:%v", querySQL, args)
 	stmt, err := s.db.PrepareContext(ctx, querySQL)

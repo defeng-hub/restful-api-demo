@@ -13,18 +13,31 @@ var (
 
 type Product struct {
 	BASEMODEL
-	Name  string
-	Price float64
-	Count int64
+	Name  string  `json:"name" validate:"required" gorm:"column:name;index:name;"`
+	Price float64 `json:"price" validate:"required"`
+	Count int64   `json:"count"`
+}
+
+func NewProduct(name string) *Product {
+	return &Product{
+		Name:  name,
+		Price: 100,
+		Count: 0,
+	}
 }
 
 func (p *Product) TableName() string {
 	return "p_product"
 }
 
-// Validate  Product参数校验
+//  Product参数校验
 func (p *Product) Validate() error {
 	return validate.Struct(p)
+}
+
+//  注入default 默认值
+func (h *Product) InjectDefault() {
+
 }
 
 // 对象全量更新
@@ -46,9 +59,9 @@ func (p *Product) Patch(obj *Product) error {
 // ----------------------------
 type QueryProductListRequest struct {
 	OrderBy  string `json:"order_by"`
-	Asc      bool   `json:"asc"`
-	Page     int    `json:"page"`
-	Size     int    `json:"size"`
+	Desc     bool   `json:"Desc"`
+	Page     int64  `json:"page"`
+	Size     int64  `json:"size"`
 	Keywords string `json:"kws"`
 }
 type DescribeProductRequest struct {
@@ -62,6 +75,6 @@ type UpdateProductRequest struct {
 	*Product
 }
 type ProductSet struct {
-	Total int        `json:"total"`
+	Total int64      `json:"total"`
 	Items []*Product `json:"items"`
 }

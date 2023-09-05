@@ -6,17 +6,16 @@ import (
 	golog "log"
 	"os"
 	"path/filepath"
-	"strings"
-	"sync/atomic"
+	"restful-api-demo/common/file"
+	"restful-api-demo/common/path"
 	"unsafe"
 
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
-
-	"github.com/infraboard/mcube/file"
-	"github.com/infraboard/mcube/path"
+	"strings"
+	"sync/atomic"
 )
 
 var (
@@ -109,7 +108,6 @@ func Configure(cfg Config) error {
 }
 
 // DevelopmentSetup configures the logger in development mode at debug level.
-// By default the output goes to stderr.
 func DevelopmentSetup(options ...Option) error {
 	cfg := Config{
 		Level:       DebugLevel,

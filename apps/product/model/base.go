@@ -21,8 +21,9 @@ type BASEMODEL struct {
 }
 
 type Page struct {
-	OrderBy string `json:"orderBy"`
-	Asc     bool   `json:"asc"`
-	Page    int    `json:"page"`
-	Size    int    `json:"size"`
+	OrderBy  string `json:"order_by"`
+	Desc     bool   `json:"desc"`
+	Page     int64  `json:"page"`
+	Size     int64  `json:"size"`
+	Keywords string `json:"kws"`
 }

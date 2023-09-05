@@ -5,27 +5,28 @@ port = "8050"
 key  = "this is your app key"
 
 [mysql]
-host = "xxx"
+host = "43.xxx.xxx.207"
 port = "3306"
-username = "bysystem"
-password = ""
-database = "bysystem"
+username = "username"
+password = "password"
+database = "dbname"
 max_open_conn = 5
 max_idle_conn = 3
 
 [redis]
 db = 0
-addr = "xxx:6379"
-password = ""
+addr = "43.xxx.xxx.207:6379"
+password = "password"
 
 [log]
 # Level
 #   "debug", "info", "warning"
 #   "error", "fatal", "panic"
+# To: file, studio
 level = "info"
 out_dir = "logs"
 format = "text"
-to = "studio" # To: file, studio
+to = "studio"
 
 [jwt]
 buffer_time = 86400
